@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  findmygroup-db:
+    build: ./database
+    container_name: findmygroup-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: findmygroup
+      POSTGRES_DB: findmygroup
+      POSTGRES_PASSWORD: pass
+    ports:
+      - 127.0.0.1:5432:5432
+
+  findmygroup-pgadmin:
+    image: dpage/pgadmin4
+    container_name: findmygroup-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: example@example.com
+      PGADMIN_DEFAULT_PASSWORD: pass
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - 127.0.0.1:5050:5050
