@@ -7,4 +7,4 @@ edition = "2018"
 
 [dependencies]
 diesel = "1"
-actix = "0.12"
+actix-web = "3"
