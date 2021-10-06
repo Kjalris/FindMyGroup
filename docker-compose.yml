@@ -21,4 +21,9 @@ services:
       PGADMIN_DEFAULT_PASSWORD: pass
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
-      - 127.0.0.1:5050:5050
+      - 127.0.0.1:5050:80
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+
+volumes:
+  pgadmin:
