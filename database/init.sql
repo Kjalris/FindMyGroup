@@ -5,7 +5,7 @@ CREATE TABLE area (
     area box NOT NULL
 );
 
-CREATE TABLE group (
+CREATE TABLE "group" (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     area_id uuid NOT NULL,
     name varchar(255) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE member (
     nickname varchar(255) NOT NULL,
     CONSTRAINT fk_group_id
       FOREIGN KEY(group_id)
-        REFERENCES group(id)
+        REFERENCES "group"(id)
         ON DELETE CASCADE
 );
 
