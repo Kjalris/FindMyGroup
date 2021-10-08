@@ -1,7 +1,9 @@
+USE findmygroup;
+
 CREATE TABLE area (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     area box NOT NULL
-)
+);
 
 CREATE TABLE group (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -12,7 +14,7 @@ CREATE TABLE group (
       FOREIGN KEY(area_id)
         REFERENCES area(id)
         ON DELETE CASCADE
-)
+);
 
 CREATE TABLE member (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -23,7 +25,7 @@ CREATE TABLE member (
       FOREIGN KEY(group_id)
         REFERENCES group(id)
         ON DELETE CASCADE
-)
+);
 
 CREATE TABLE location (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -34,4 +36,4 @@ CREATE TABLE location (
       FOREIGN KEY(member_id)
         REFERENCES member(id)
         ON DELETE CASCADE
-)
+);
