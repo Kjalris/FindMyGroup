@@ -6,7 +6,7 @@ DROP FUNCTION IF EXISTS diesel_manage_updated_at(_tbl regclass);
 DROP FUNCTION IF EXISTS diesel_set_updated_at();
 
 -- Your SQL goes here
-DROP TABLE IF EXISTS area;
-DROP TABLE IF EXISTS "group";
-DROP TABLE IF EXISTS member;
 DROP TABLE IF EXISTS location;
+DROP TABLE IF EXISTS member;
+DROP TABLE IF EXISTS "group";
+DROP TABLE IF EXISTS area;
