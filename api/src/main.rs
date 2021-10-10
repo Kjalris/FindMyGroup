@@ -1,6 +1,6 @@
 use actix_web::{get, web, App, HttpServer, Responder};
 
-#[get("/{meme}")]
+#[get("/api/v1/{meme}")]
 async fn index(web::Path(meme): web::Path<String>) -> impl Responder {
     format!("Hello {}!", meme)
 }
