@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE location (
+CREATE TABLE IF NOT EXISTS location (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     member_id uuid UNIQUE NOT NULL,
     timestamp timestamp NOT NULL DEFAULT NOW(),

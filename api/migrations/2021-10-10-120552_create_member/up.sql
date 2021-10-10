@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE member (
+CREATE TABLE IF NOT EXISTS member (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     group_id uuid NOT NULL,
     role smallint NOT NULL,

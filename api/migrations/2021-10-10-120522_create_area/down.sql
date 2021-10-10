@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE area
+DROP TABLE IF EXISTS area;

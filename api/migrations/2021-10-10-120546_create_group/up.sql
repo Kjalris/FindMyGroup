@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE "group" (
+CREATE TABLE IF NOT EXISTS "group" (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     area_id uuid NOT NULL,
     name varchar(255) NOT NULL,
