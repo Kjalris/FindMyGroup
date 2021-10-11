@@ -1,7 +1,7 @@
 table! {
     area (id) {
         id -> Uuid,
-        area -> Box,
+        area_box -> Box,
     }
 }
 
@@ -29,6 +29,7 @@ table! {
         group_id -> Uuid,
         role -> Int2,
         nickname -> Varchar,
+        password -> Varchar,
     }
 }
 
