@@ -48,7 +48,7 @@ async fn main() -> io::Result<()> {
             // .service(like::plus_one)
             // .service(like::minus_one)
     })
-    .bind("0.0.0.0:9090")?
+    .bind("127.0.0.1:9090")?
     .run()
     .await
 }
