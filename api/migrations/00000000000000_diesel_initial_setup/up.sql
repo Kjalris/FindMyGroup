@@ -38,7 +38,7 @@ $$ LANGUAGE plpgsql;
 -- Your SQL goes here
 CREATE TABLE IF NOT EXISTS area (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    area_box box NOT NULL
+    area_box geography(POLYGON,4267) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS "group" (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS location (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     member_id uuid UNIQUE NOT NULL,
     timestamp timestamp NOT NULL DEFAULT NOW(),
-    point point NOT NULL,
+    point geography(POINT) NOT NULL,
     CONSTRAINT fk_member_id
       FOREIGN KEY(member_id)
         REFERENCES member(id)

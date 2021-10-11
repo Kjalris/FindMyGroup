@@ -1,6 +1,6 @@
 CREATE TABLE area (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    area box NOT NULL
+    area geography(POLYGON,4267) NOT NULL
 );
 
 CREATE TABLE "group" (
@@ -19,6 +19,7 @@ CREATE TABLE member (
     group_id uuid NOT NULL,
     role smallint NOT NULL,
     nickname varchar(255) NOT NULL,
+    password varchar(255) NOT NULL,
     CONSTRAINT fk_group_id
       FOREIGN KEY(group_id)
         REFERENCES "group"(id)
@@ -29,7 +30,7 @@ CREATE TABLE location (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     member_id uuid UNIQUE NOT NULL,
     timestamp timestamp NOT NULL DEFAULT NOW(),
-    point point NOT NULL,
+    point geography(POINT) NOT NULL,
     CONSTRAINT fk_member_id
       FOREIGN KEY(member_id)
         REFERENCES member(id)

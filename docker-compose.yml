@@ -2,7 +2,8 @@ version: "3.9"
 
 services:
   findmygroup-db:
-    image: postgres
+    #image: postgres
+    image: postgis/postgis
     #build: ./database
     container_name: findmygroup-db
     restart: unless-stopped
