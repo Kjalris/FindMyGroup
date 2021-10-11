@@ -50,17 +50,88 @@ impl Group {
 #[derive(Queryable, Insertable)]
 pub struct GroupDB {
     pub id: Uuid,
-    pub created_at: NaiveDateTime,
-    pub message: String,
+    pub name: String,
+    pub password: Uuid,
 }
 
-impl TweetDB {
-    fn to_tweet(&self) -> Tweet {
-        Tweet {
+impl GroupDB {
+    fn to_group(&self) -> Group {
+        Group {
             id: self.id.to_string(),
-            created_at: Utc.from_utc_datetime(&self.created_at),
-            message: self.message.clone(),
-            likes: vec![],
+            name: self.name.clone(),
+            password: Uuid::new_v4(),
+            //created_at: Utc.from_utc_datetime(&self.created_at),
+            //message: self.message.clone(),
+            //likes: vec![],
         }
     }
+}
+
+fn get_group(_id: Uuid, conn: &DBPooledConnection) -> Result<Group, Error> {
+    use crate::schema::group::dsl::*;
+
+    let res = group.filter(id.eq(_id)).load::<GroupDB>(conn);
+    match res {
+        Ok(groups_db) => match groups_db.first() {
+            Some(group_db) => Ok(group_db.to_group()),
+            _ => Err(Error::NotFound),
+        },
+        Err(err) => Err(err),
+    }
+}
+
+fn create_group(group: Group, conn: &DBPooledConnection) -> Result<Group, Error> {
+    use crate::schema::group::dsl::*;
+
+    let group_db = group.to_group_db();
+    let _ = diesel::insert_into(group).values(&group_db).execute(conn);
+
+    Ok(group_db.to_group())
+}
+
+fn delete_group(_id: Uuid, conn: &DBPooledConnection) -> Result<(), Error> {
+    use crate::schema::group::dsl::*;
+
+    let res = diesel::delete(group.filter(id.eq(_id))).execute(conn);
+    match res {
+        Ok(_) => Ok(()),
+        Err(err) => Err(err),
+    }
+}
+
+/// find a group by its id `/groups/{id}`
+#[get("/groups/{id}")]
+pub async fn get(path: Path<(String,)>, pool: Data<DBPool>) -> HttpResponse {
+    let conn = pool.get().expect(CONNECTION_POOL_ERROR);
+    let group =
+        web::block(move || get_group(Uuid::from_str(path.0.as_str()).unwrap(), &conn)).await;
+
+    match group {
+        Ok(group) => {
+            let conn = pool.get().expect(CONNECTION_POOL_ERROR);
+            //let _likes = list_likes(Uuid::from_str(group.id.as_str()).unwrap(), &conn).unwrap();
+
+            HttpResponse::Ok()
+                .content_type(APPLICATION_JSON)
+                //.json(group.add_likes(_likes.results))    // TODO: Skift likes til group members.
+        }
+        _ => HttpResponse::NoContent()
+            .content_type(APPLICATION_JSON)
+            .await
+            .unwrap(),
+    }
+}
+
+/// delete a group by its id `/groups/{id}`
+#[delete("/groups/{id}")]
+pub async fn delete(path: Path<(String,)>, pool: Data<DBPool>) -> HttpResponse {
+    // in any case return status 204
+    let conn = pool.get().expect(CONNECTION_POOL_ERROR);
+
+    let _ = web::block(move || delete_group(Uuid::from_str(path.0.as_str()).unwrap(), &conn)).await;
+
+    HttpResponse::NoContent()
+        .content_type(APPLICATION_JSON)
+        .await
+        .unwrap()
 }
