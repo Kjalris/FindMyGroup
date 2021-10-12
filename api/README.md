@@ -1,3 +1,5 @@
+Try pure implementation with rust-postgres using rust-postgis and actix. Dead simple version
+
 # API design
 *Endpoint:* `/api`
 
