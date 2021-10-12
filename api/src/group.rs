@@ -46,8 +46,8 @@ impl Group {
     }
 }
 
-#[table_name = "group"]
 #[derive(Queryable, Insertable)]
+#[table_name = "group"]
 pub struct GroupDB {
     pub id: Uuid,
     pub name: String,

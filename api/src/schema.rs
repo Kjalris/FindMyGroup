@@ -1,5 +1,6 @@
 table! {
     use diesel::sql_types::*;
+    use postgis_diesel::sql_types::*;
     use diesel_geography::sql_types::*;
 
     area (id) {
@@ -10,6 +11,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use postgis_diesel::sql_types::*;
     use diesel_geography::sql_types::*;
 
     group (id) {
@@ -22,6 +24,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use postgis_diesel::sql_types::*;
     use diesel_geography::sql_types::*;
 
     location (id) {
@@ -34,6 +37,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use postgis_diesel::sql_types::*;
     use diesel_geography::sql_types::*;
 
     member (id) {
@@ -47,6 +51,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
+    use postgis_diesel::sql_types::*;
     use diesel_geography::sql_types::*;
 
     spatial_ref_sys (srid) {

@@ -4,4 +4,4 @@
 [print_schema]
 file = "src/schema.rs"
 
-import_types = ["diesel::sql_types::*", "diesel_geography::sql_types::*"]
+import_types = ["diesel::sql_types::*", "postgis_diesel::sql_types::*", "diesel_geography::sql_types::*"]
