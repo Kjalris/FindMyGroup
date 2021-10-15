@@ -6,6 +6,13 @@ import MapScreen from './src/screens/MapScreen';
 import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
 import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import TestScreen from './src/screens/TestScreen';
+import TimeAgo from 'javascript-time-ago';
+
+import en from 'javascript-time-ago/locale/en.json';
+import dk from 'javascript-time-ago/locale/en-DK.json';
+
+TimeAgo.addLocale(en);
+TimeAgo.addLocale(dk);
 
 const Stack = createNativeStackNavigator();
 

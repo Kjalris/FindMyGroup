@@ -3,23 +3,31 @@ import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ReactTimeAgo from 'react-time-ago';
 
 function PersonMarker(props: {
   name: string;
   location: Location.LocationObject;
 }): any {
-  const description =
-    'Last seen ' + props.location.timestamp.toString() + ' seconds ago';
+  function PersonMarkerWithTime({ children }: { children: string }) {
+    return (
+      <Marker
+        key="0"
+        coordinate={{
+          latitude: props.location.coords.latitude,
+          longitude: props.location.coords.longitude,
+        }}
+        title={props.name}
+        description={children}
+      />
+    );
+  }
 
   return (
-    <Marker
-      key="0"
-      coordinate={{
-        latitude: props.location.coords.latitude,
-        longitude: props.location.coords.longitude,
-      }}
-      title={props.name}
-      description={description}
+    <ReactTimeAgo
+      date={new Date(props.location.timestamp)}
+      component={PersonMarkerWithTime}
+      timeStyle={'round'}
     />
   );
 }
