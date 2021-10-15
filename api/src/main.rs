@@ -1,14 +1,18 @@
-use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
+use actix_web::{App, HttpServer};
 
-#[get("/{meme}")]
-async fn index(web::Path(meme): web::Path<String>) -> impl Responder {
-    format!("Hello {}!", meme)
-}
+mod api_error;
+mod db;
 
-#[actix_web::main]
+mod group;
+
+#[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().service(index))
-        .bind("127.0.0.1:9666")?
-        .run()
-        .await
+    db::init();
+
+    let mut server = HttpServer::new(||
+        App::new()
+            .configure(group::init_routes)
+    );
+    server.bind("127.0.0.1:9666");
+    server.run().await
 }
