@@ -2,20 +2,22 @@ use actix_web::{App, HttpServer, web, get, post, delete, HttpResponse, Responder
 use std::thread;
 use r2d2_postgres::{postgres::NoTls, PostgresConnectionManager};
 use lazy_static::lazy_static;
+use serde_json::json;
 
-lazy_static! {
-    static ref POOL: r2d2::Pool<PostgresConnectionManager<NoTls>> = {
-        let manager = PostgresConnectionManager::new(
-            "host=findmygroup user=findmygroup password=pass".parse().unwrap(),
-            NoTls,
-        );
-        r2d2::Pool::new(manager).unwrap()
-    };
-}
+// lazy_static! {
+//     static ref POOL: r2d2::Pool<PostgresConnectionManager<NoTls>> = {
+//         let manager = PostgresConnectionManager::new(
+//             "host=findmygroup user=findmygroup password=pass".parse().unwrap(),
+//             NoTls,
+//         );
+//         r2d2::Pool::new(manager).unwrap()
+//     };
+// }
 
 // [/groups] POST: Add a new group, return group entity.
 async fn create_group(body: String) -> impl Responder {
-    HttpResponse::Created().json(body)
+    println!("{}", body);
+    HttpResponse::Created().body(json!(body))
 }
 
 // - /groups/:id
@@ -34,10 +36,8 @@ async fn create_group(body: String) -> impl Responder {
 //     HttpResponse::Ok().json(json!({"message": "Deleted."}))
 // }
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    lazy_static::initialize(&POOL);
-
     HttpServer::new(|| {
         App::new()
             .route("/groups", web::post().to(create_group))
