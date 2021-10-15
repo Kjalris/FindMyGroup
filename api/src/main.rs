@@ -1,6 +1,5 @@
 use actix_web::{App, HttpServer};
 
-mod api_error;
 mod db;
 
 mod group;

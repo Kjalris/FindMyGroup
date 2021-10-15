@@ -1,25 +1,23 @@
-use crate::api_error::ApiError;
+use crate::{group::Group};
+use std::thread;
 use r2d2_postgres::{postgres::NoTls, PostgresConnectionManager};
-
-type Pool = r2d2::Pool<PostgresConnectionManager<NoTls>>;
+use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref POOL: Pool = {
-        let db_url = env::var("DATABASE_URL").expect("Database url not set");
-        let manager = ConnectionManager::<PgConnection>::new(db_url);
-        Pool::new(manager).expect("Failed to create db pool")
+    static ref POOL: r2d2::Pool<PostgresConnectionManager<NoTls>> = {
+        let manager = PostgresConnectionManager::new(
+            "host=findmygroup user=findmygroup password=pass".parse().unwrap(),
+            NoTls,
+        );
+        r2d2::Pool::new(manager).unwrap()
     };
 }
 
 pub fn init() {
-    let manager = PostgresConnectionManager::new(
-        "host=findmygroup user=findmygroup password=pass".parse().unwrap(),
-        NoTls,
-    );
-    r2d2::Pool::new(manager).unwrap();
+    lazy_static::initialize(&POOL);
 }
 
-pub fn get_pool_instance() -> Result<DbConnection, ApiError> {
+pub fn create_group(name: String) -> Group {
     pool = pool.clone();
     POOL.get()
         .map_err(|e| ApiError::new(500, format!("Failed getting db connection: {}", e)))
