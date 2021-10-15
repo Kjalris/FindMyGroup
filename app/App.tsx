@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import HomeScreen from './src/screens/HomeScreen';
 import MapScreen from './src/screens/MapScreen';
+import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
 import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import TestScreen from './src/screens/TestScreen';
 
@@ -14,7 +15,8 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Map" component={MapScreen} />
-        <Stack.Screen name="QR" component={QrCodeScannerScreen} />
+        <Stack.Screen name="QRScan" component={QrCodeScannerScreen} />
+        <Stack.Screen name="QRCreate" component={QrCodeCreatorScreen} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>

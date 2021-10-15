@@ -15,9 +15,15 @@ export default class HomeScreen extends React.Component<{
           }}
         />
         <Button
-          title="Go to QR"
+          title="Go to scan QR"
           onPress={() => {
-            this.props.navigation.navigate('QR');
+            this.props.navigation.navigate('QRScan');
+          }}
+        />
+        <Button
+          title="Go to create QR"
+          onPress={() => {
+            this.props.navigation.navigate('QRCreate');
           }}
         />
         <Button
