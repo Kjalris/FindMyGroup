@@ -22,6 +22,7 @@
 
 
 ### References
+- [Rust Web Development Tutorial: REST API](https://cloudmaker.dev/how-to-create-a-rest-api-in-rust/) [[Git repo](https://github.com/thecloudmaker/actix_tutorials/tree/master/rest_api)]
 - [How to create an API with Rust and Postgres](https://blog.logrocket.com/create-a-backend-api-with-rust-and-postgres/) [[Git repo](https://github.com/olajohn-ajiboye/Rust-Rest-API)]
 - [Create a blazingly fast REST API in Rust (Part 1/2)](https://hub.qovery.com/guides/tutorial/create-a-blazingly-fast-api-in-rust-part-1/) [[Git repo](https://github.com/evoxmusic/twitter-clone-rust)]
 - [Diesel Getting Started](https://diesel.rs/guides/getting-started.html)
