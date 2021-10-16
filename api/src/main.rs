@@ -17,17 +17,16 @@ use serde_json::json;
 // [/groups] POST: Add a new group, return group entity.
 async fn create_group(body: String) -> impl Responder {
     println!("{}", body);
-    HttpResponse::Created().body(json!(body))
+    HttpResponse::Created().json(json!(body))
 }
 
-// - /groups/:id
-//  - GET: Get group entity.
-// #[get("/groups/{id}")]
-// async fn find() -> impl Responder {
-//     HttpResponse::Ok().json(
-//         //User { id: 1, email: "tore@cloudmaker.dev".to_string() }
-//     )
-// }
+// [/groups/:id] GET: Get group entity.
+async fn get_group() -> impl Responder {
+    HttpResponse::Ok().json(
+        json!({"meme": "meme"})
+        //User { id: 1, email: "tore@cloudmaker.dev".to_string() }
+    )
+}
 
 // - /groups/:id
 //  - DELETE: Delete group entity.
@@ -41,6 +40,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/groups", web::post().to(create_group))
+            .route("/groups/{id}", web::get().to(get_group))
     })
     .bind(("127.0.0.1", 8080))?
     .run()
