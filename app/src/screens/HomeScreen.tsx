@@ -1,38 +1,52 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
-import { Button, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
+import logo from './images/LOGO.png';
+import AppButton from "./AppButton";
+
 
 export default class HomeScreen extends React.Component<{
   navigation: NativeStackNavigationProp<{}>;
 }> {
   render() {
     return (
-      <View>
-        <Button
-          title="Go to Map"
-          onPress={() => {
+      <View style={styles.container}>
+          <Image style={styles.logo} source={logo}/>
+
+        <AppButton title="Create Group" onPress={() => {
+            this.props.navigation.navigate('CreateGroup');
+          }}/>
+          
+
+        <AppButton title="Join Group" onPress={() => {
             this.props.navigation.navigate('Map');
-          }}
-        />
-        <Button
-          title="Go to scan QR"
-          onPress={() => {
-            this.props.navigation.navigate('QRScan');
-          }}
-        />
-        <Button
-          title="Go to create QR"
-          onPress={() => {
-            this.props.navigation.navigate('QRCreate');
-          }}
-        />
-        <Button
-          title="Go to Test"
-          onPress={() => {
-            this.props.navigation.navigate('Test');
-          }}
-        />
+          }}/>
+       
+       
+        
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex:1,
+    backgroundColor:"#809C55",
+    justifyContent: "center",
+    
+    
+  },
+  logo:{
+    resizeMode: 'contain',
+    alignItems: 'center',
+    left:70
+    
+
+
+  },
+  
+  
+
+  
+});

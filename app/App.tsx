@@ -6,6 +6,7 @@ import MapScreen from './src/screens/MapScreen';
 import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
 import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import TestScreen from './src/screens/TestScreen';
+import CreateGroup from './src/screens/CreateGroup';
 import TimeAgo from 'javascript-time-ago';
 
 import en from 'javascript-time-ago/locale/en.json';
@@ -25,6 +26,7 @@ export default function App() {
         <Stack.Screen name="QRScan" component={QrCodeScannerScreen} />
         <Stack.Screen name="QRCreate" component={QrCodeCreatorScreen} />
         <Stack.Screen name="Test" component={TestScreen} />
+        <Stack.Screen name="CreateGroup" component={CreateGroup} />
       </Stack.Navigator>
     </NavigationContainer>
   );
