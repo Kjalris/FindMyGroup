@@ -1,8 +1,12 @@
-use actix_web::{App, HttpServer, web, get, post, delete, HttpResponse, Responder};
+use actix_web::{App, HttpServer, web, get, post, delete, HttpResponse, Responder, Error, error};
 use std::thread;
 use r2d2_postgres::{postgres::NoTls, PostgresConnectionManager};
 use lazy_static::lazy_static;
-use serde_json::json;
+use serde_json::{json, Value};
+use futures::StreamExt;
+use json::JsonValue;
+
+const MAX_SIZE: usize = 262_144; // max payload size is 256k
 
 // lazy_static! {
 //     static ref POOL: r2d2::Pool<PostgresConnectionManager<NoTls>> = {
@@ -14,10 +18,23 @@ use serde_json::json;
 //     };
 // }
 
-// [/groups] POST: Add a new group, return group entity.
-async fn create_group(body: String) -> impl Responder {
-    println!("{}", body);
-    HttpResponse::Created().json(json!(body))
+// [/groups] POST: Add a new group, return group entity. https://github.com/actix/examples
+async fn create_group(mut payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload is a stream of Bytes objects
+    let mut body = web::BytesMut::new();
+    while let Some(chunk) = payload.next().await {
+        let chunk = chunk?;
+        // limit max size of in-memory payload
+        if (body.len() + chunk.len()) > MAX_SIZE {
+            return Err(error::ErrorBadRequest("overflow"));
+        }
+        body.extend_from_slice(&chunk);
+    }
+
+    // body is loaded, now we can deserialize serde-json
+    let obj = serde_json::from_slice(&body)?;
+    Ok(HttpResponse::Ok().json(obj)) // <- send response
+    // TODO: look here? https://github.com/actix/examples/blob/master/json/json/src/main.rs
 }
 
 // [/groups/:id] GET: Get group entity.
