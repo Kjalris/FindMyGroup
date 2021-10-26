@@ -10,6 +10,7 @@ import TimeAgo from 'javascript-time-ago';
 
 import en from 'javascript-time-ago/locale/en.json';
 import dk from 'javascript-time-ago/locale/en-DK.json';
+import PolygonCreator from './src/screens/PolygonCreatorScreen';
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(dk);
@@ -22,6 +23,7 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Map" component={MapScreen} />
+        <Stack.Screen name="PolygonCreator" component={PolygonCreator} />
         <Stack.Screen name="QRScan" component={QrCodeScannerScreen} />
         <Stack.Screen name="QRCreate" component={QrCodeCreatorScreen} />
         <Stack.Screen name="Test" component={TestScreen} />

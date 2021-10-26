@@ -100,12 +100,10 @@ export default class MapScreen extends React.Component<
   }
 }
 
-const backgroundColor = '#fff';
-
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor,
+    backgroundColor: '#fff',
     flex: 1,
     justifyContent: 'center',
   },

@@ -21,4 +21,7 @@ module.exports = {
     'plugin:react-native/all',
   ],
   ignorePatterns: ['.eslintrc.js', 'babel.config.js'],
+  rules: {
+    'react-native/no-color-literals': 0
+  }
 };

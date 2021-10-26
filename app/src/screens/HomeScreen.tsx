@@ -15,6 +15,12 @@ export default class HomeScreen extends React.Component<{
           }}
         />
         <Button
+          title="Go to Polygon editor"
+          onPress={() => {
+            this.props.navigation.navigate('PolygonCreator');
+          }}
+        />
+        <Button
           title="Go to scan QR"
           onPress={() => {
             this.props.navigation.navigate('QRScan');
