@@ -5,6 +5,10 @@ import configuration, { DatabaseConfig } from './common/config/configuration';
 import { validation } from './common/config/validation';
 import { GroupModule } from './group/group.module';
 import { MemberModule } from './member/member.module';
+import { AreaModule } from './area/area.module';
+import { LocationModule } from './location/location.module';
+import { Group } from './group/entities/group.entity';
+import { Area } from './area/entities/area.entity';
 
 @Module({
   imports: [
@@ -27,7 +31,7 @@ import { MemberModule } from './member/member.module';
           username: databaseConfig.username,
           password: databaseConfig.password,
           database: databaseConfig.database,
-          entities: [],
+          entities: [Group, Area],
           autoLoadModels: true,
           synchronize: process.env.TYPEORM_SYNCRONIZE === 'true',
           keepConnectionAlive: true,
@@ -36,6 +40,8 @@ import { MemberModule } from './member/member.module';
     }),
     GroupModule,
     MemberModule,
+    AreaModule,
+    LocationModule,
   ],
 })
 export class AppModule {}
