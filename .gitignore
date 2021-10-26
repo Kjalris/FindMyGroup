@@ -1,3 +1,5 @@
+.env
+
 ### START - Nest
 # compiled output
 /api/dist
