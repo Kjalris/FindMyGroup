@@ -19,7 +19,14 @@ export class GroupService {
     return this.groupRepository.findOne({ where: { id: id } });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.groupRepository.delete(id);
+  delete(id: string): Promise<boolean> {
+    return this.groupRepository.count({ where: { id: id } }).then((result) => {
+      if (result >= 1) {
+        this.groupRepository.delete(id);
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
 }
