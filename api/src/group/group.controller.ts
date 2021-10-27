@@ -1,12 +1,14 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseUUIDPipe,
+  Post,
   ValidationPipe,
 } from '@nestjs/common';
 import { AreaService } from '../area/area.service';
-import { GetGroupDto } from './dto/get-group.dto';
+import { CreateGroupDto, GetGroupDto } from './dto/get-group.dto';
 import { Group } from './entities/group.entity';
 import { GroupService } from './group.service';
 
@@ -17,8 +19,13 @@ export class GroupController {
     private readonly areaService: AreaService,
   ) {}
 
-  // @Post()
-  // private createGroup() {}
+  @Post()
+  private createGroup(
+    @Body(new ValidationPipe({ transform: true }))
+    body: CreateGroupDto,
+  ) {
+    return this.groupService.create(body);
+  }
 
   @Get(':id')
   private getGroup(
