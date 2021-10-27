@@ -27,8 +27,10 @@ export class GroupController {
     return this.groupService.get(params.id);
   }
 
-  @Get(':id/area')
-  private getArea(@Param('id', ParseUUIDPipe) id: string): Promise<any> {
-    return this.areaService.get(id);
+  @Get(':group_id/area')
+  private getArea(
+    @Param('group_id', ParseUUIDPipe) group_id: string,
+  ): Promise<any> {
+    return this.areaService.get(group_id);
   }
 }

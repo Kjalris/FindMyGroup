@@ -24,9 +24,9 @@ export class AreaService {
     // );
   }
 
-  get(id: string): Promise<number[][]> {
+  get(group_id: string): Promise<number[][]> {
     return this.areaRepository
-      .findOne({ where: { groupId: id } })
+      .findOne({ where: { group_id: group_id } })
       .then((result) => {
         return result.area
           .substring(2, result.area.length - 2)
