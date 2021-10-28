@@ -9,6 +9,8 @@ import { AreaModule } from './area/area.module';
 import { LocationModule } from './location/location.module';
 import { Group } from './group/entities/group.entity';
 import { Area } from './area/entities/area.entity';
+import { Member } from './member/entities/member.entity';
+import { Location } from './location/entities/location.entity';
 
 @Module({
   imports: [
@@ -31,7 +33,7 @@ import { Area } from './area/entities/area.entity';
           username: databaseConfig.username,
           password: databaseConfig.password,
           database: databaseConfig.database,
-          entities: [Group, Area],
+          entities: [Group, Area, Member, Location],
           autoLoadModels: true,
           synchronize: process.env.TYPEORM_SYNCRONIZE === 'true',
           keepConnectionAlive: true,
@@ -39,8 +41,8 @@ import { Area } from './area/entities/area.entity';
       },
     }),
     GroupModule,
-    MemberModule,
     AreaModule,
+    MemberModule,
     LocationModule,
   ],
 })
