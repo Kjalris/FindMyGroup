@@ -11,12 +11,23 @@ export class GroupService {
     private readonly groupRepository: Repository<Group>,
   ) {}
 
-  create(body: CreateGroupDto): Promise<Group> {
-    return this.groupRepository.save(body);
+  create(body: CreateGroupDto): Promise<any> {
+    return this.groupRepository.save(body).then((result) => {
+      return {
+        name: result.name,
+        id: result.id,
+      };
+    });
   }
 
-  get(id: string): Promise<Group> {
-    return this.groupRepository.findOne({ where: { id: id } });
+  get(id: string): any {
+    return this.groupRepository
+      .findOne({ where: { id: id } })
+      .then((result) => {
+        return {
+          name: result.name,
+        };
+      });
   }
 
   delete(id: string): Promise<boolean> {
