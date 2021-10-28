@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,6 +9,7 @@ import {
   ParseUUIDPipe,
   Post,
   Res,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { AreaService } from '../area/area.service';
@@ -17,6 +19,7 @@ import { GroupService } from './group.service';
 import { Response } from 'express';
 
 @Controller('groups')
+@UseInterceptors(ClassSerializerInterceptor)
 export class GroupController {
   constructor(
     private readonly groupService: GroupService,
@@ -27,7 +30,7 @@ export class GroupController {
   private createGroup(
     @Body(new ValidationPipe({ transform: true }))
     body: CreateGroupDto,
-  ) {
+  ): Promise<Group> {
     return this.groupService.create(body);
   }
 
