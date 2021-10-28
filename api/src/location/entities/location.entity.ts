@@ -1,13 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Location {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryColumn({ type: 'uuid' })
+  member_id: string;
 
-  @Column({ length: 255 })
-  name: string;
+  @Column({ type: 'timestamp' })
+  timestamp: string;
 
-  @Column()
-  password: string;
+  @Column({ type: 'point' })
+  point: string;
 }
