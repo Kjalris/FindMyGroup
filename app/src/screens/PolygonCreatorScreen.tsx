@@ -124,6 +124,51 @@ export default class PolygonCreator extends React.Component<
     });
   }
 
+  onLongPress(e: MapEvent) {
+    const { editing } = this.state;
+
+    if (editing === false) {
+      // We are not editing
+      return;
+    }
+
+    const pressCoordinate = e.nativeEvent.coordinate;
+    const polygon = editing.polygon as LatLng[];
+
+    // Create a copy of the polygon coordinates
+    const coordinates = [];
+    for (let i = 0; i < polygon.length; i++) {
+      const coordinate = polygon[i];
+
+      coordinates.push({
+        ...coordinate,
+      });
+    }
+
+    const radius = this.getAreaCornerRadius();
+
+    for (let i = 0; i < coordinates.length; i++) {
+      const coordinate = coordinates[i];
+
+      // Check if we clicked on the already selected corner
+      if (geolib.isPointWithinRadius(pressCoordinate, coordinate, radius)) {
+        // We clicked on it, remove it from the coordinates list
+        coordinates.splice(i, 1);
+
+        this.setState({
+          editing: {
+            polygon: coordinates,
+            selectedCoordinate:
+              i === editing.selectedCoordinate
+                ? null
+                : editing.selectedCoordinate,
+          },
+        });
+        break;
+      }
+    }
+  }
+
   onPress(e: MapEvent) {
     const { editing } = this.state;
     const pressCoordinate = e.nativeEvent.coordinate;
@@ -161,7 +206,7 @@ export default class PolygonCreator extends React.Component<
         });
       }
 
-      let deletedCoordinate = false;
+      let deselectedPoint = false;
 
       const radius = this.getAreaCornerRadius();
 
@@ -170,14 +215,13 @@ export default class PolygonCreator extends React.Component<
 
         // Check if we clicked on the already selected corner
         if (geolib.isPointWithinRadius(pressCoordinate, coordinate, radius)) {
-          // We clicked on it, remove it from the coordinates list
-          coordinates.splice(editing.selectedCoordinate, 1);
-          deletedCoordinate = true;
+          // We clicked on it, deselect it
+          deselectedPoint = true;
           break;
         }
       }
 
-      if (!deletedCoordinate) {
+      if (!deselectedPoint) {
         // We didn't click on the already selected coordinate, move it to where
         // we clicked.
         coordinates[editing.selectedCoordinate] = pressCoordinate;
@@ -244,6 +288,7 @@ export default class PolygonCreator extends React.Component<
           mapType={MAP_TYPES.HYBRID}
           initialRegion={this.state.region}
           onPress={this.onPress.bind(this)}
+          onLongPress={this.onLongPress.bind(this)}
         >
           {this.state.editing !== false &&
             this.state.editing.polygon.map((v: any, i: number) => (
