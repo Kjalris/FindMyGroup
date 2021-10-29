@@ -1,12 +1,29 @@
 import React from 'react';
-import { Button, StyleSheet, View } from 'react-native';
+import { Button, StyleSheet, View, Text } from 'react-native';
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import BarcodeMask from 'react-native-barcode-mask';
 
 export default class QrCodeScannerScreen extends React.Component<
   unknown,
-  { scanned: boolean }
+  { scanned: boolean; hasPermission: boolean }
 > {
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      scanned: false,
+      hasPermission: false,
+    };
+  }
+
+  async componentDidMount() {
+    const { status } = await BarCodeScanner.requestPermissionsAsync();
+
+    this.setState({
+      hasPermission: status === 'granted',
+    });
+  }
+
   handleBarCodeScanned(result: BarCodeScannerResult) {
     if (!this.state?.scanned) {
       const { type, data } = result;
@@ -41,6 +58,10 @@ export default class QrCodeScannerScreen extends React.Component<
   }
 
   render() {
+    if (!this.state.hasPermission) {
+      return <Text>App needs permission to use camera</Text>;
+    }
+
     return (
       <View style={styles.container}>
         <BarCodeScanner

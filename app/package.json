@@ -24,6 +24,7 @@
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.2",
+    "react-native-app-intro-slider": "^4.0.4",
     "react-native-barcode-mask": "^1.2.4",
     "react-native-maps": "0.28.0",
     "react-native-qrcode-svg": "^5.3.2",
