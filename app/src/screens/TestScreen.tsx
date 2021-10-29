@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from 'react-native';
 
 export default class TestScreen extends React.Component<{
-  navigation: NativeStackNavigationProp<{}>;
+  navigation: NativeStackNavigationProp<any>;
 }> {
   render() {
     return (

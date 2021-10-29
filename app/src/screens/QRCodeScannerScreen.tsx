@@ -4,7 +4,7 @@ import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import BarcodeMask from 'react-native-barcode-mask';
 
 export default class QrCodeScannerScreen extends React.Component<
-  {},
+  unknown,
   { scanned: boolean }
 > {
   handleBarCodeScanned(result: BarCodeScannerResult) {

@@ -1,4 +1,5 @@
 {
+  "eslint.workingDirectories": ["app"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnPaste": false,
   "editor.tabSize": 2,

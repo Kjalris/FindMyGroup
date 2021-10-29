@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, View } from 'react-native';
 
 export default class HomeScreen extends React.Component<{
-  navigation: NativeStackNavigationProp<{}>;
+  navigation: NativeStackNavigationProp<any>;
 }> {
   render() {
     return (
