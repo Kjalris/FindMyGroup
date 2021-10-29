@@ -19,7 +19,7 @@ import * as Haptics from 'expo-haptics';
 import earcut from 'earcut';
 import * as geolib from 'geolib';
 import Toast from 'react-native-toast-message';
-import { createError } from '../helpers/toast';
+import { createError, createWarning } from '../helpers/toast';
 import intersects from '../helpers/intersects';
 
 const { width, height } = Dimensions.get('window');
@@ -269,7 +269,7 @@ export default class PolygonCreator extends React.Component<
         )
       ) {
         if (coordinates.length <= 3) {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          createWarning('Area', "Area can't have less than 3 points");
           return;
         }
 

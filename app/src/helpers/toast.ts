@@ -9,3 +9,12 @@ export function createError(title: string, description: string): void {
   });
   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 }
+
+export function createWarning(title: string, description: string): void {
+  Toast.show({
+    type: 'error',
+    text1: title,
+    text2: description,
+  });
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+}
