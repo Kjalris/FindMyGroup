@@ -16,7 +16,6 @@ import MapScreen from './src/screens/MapScreen';
 import PolygonCreator from './src/screens/PolygonCreatorScreen';
 import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
-import TestScreen from './src/screens/TestScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 interface IntroSlide {
@@ -89,7 +88,6 @@ export default class App extends React.Component<
             <Stack.Screen name="PolygonCreator" component={PolygonCreator} />
             <Stack.Screen name="QRScan" component={QrCodeScannerScreen} />
             <Stack.Screen name="QRCreate" component={QrCodeCreatorScreen} />
-            <Stack.Screen name="Test" component={TestScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       );

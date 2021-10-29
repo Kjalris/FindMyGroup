@@ -32,12 +32,6 @@ export default class HomeScreen extends React.Component<{
             this.props.navigation.navigate('QRCreate');
           }}
         />
-        <Button
-          title="Go to Test"
-          onPress={() => {
-            this.props.navigation.navigate('Test');
-          }}
-        />
       </View>
     );
   }
