@@ -1,12 +1,20 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Group } from '../../group/entities/group.entity';
 
 @Entity()
 export class Member {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
-  group_id: string;
+  @ManyToOne(() => Group, (group) => group.id, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'group_id' })
+  group_id: Group;
 
   @Column({ type: 'smallint' })
   role: number;
