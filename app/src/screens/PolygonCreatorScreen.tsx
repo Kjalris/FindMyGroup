@@ -5,17 +5,22 @@ import {
   Text,
   Dimensions,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
 import MapView, {
-  Circle,
   LatLng,
   MapEvent,
   MAP_TYPES,
+  Marker,
   Polygon,
   Region,
 } from 'react-native-maps';
+import * as Haptics from 'expo-haptics';
 import earcut from 'earcut';
 import * as geolib from 'geolib';
+import Toast from 'react-native-toast-message';
+import { createError } from '../helpers/toast';
+import intersects from '../helpers/intersects';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,21 +30,22 @@ const LONGITUDE = 10.42768182232976;
 const LATITUDE_DELTA = 0.02835061401128769;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
+interface Editing {
+  polygon: LatLng[];
+  selectedCoordinate: null | number;
+}
+
 export default class PolygonCreator extends React.Component<
   unknown,
   {
     region: Region;
-    editing:
-      | false
-      | {
-          polygon: LatLng[];
-          selectedCoordinate: null | number;
-        };
+    editing: false | Editing;
     triangles: LatLng[][] | null;
     polygon: LatLng[] | null;
   }
 > {
   private areaCornerRadiusPerLongitudeDelta = 3000;
+  private shakeAnimation = new Animated.Value(0);
 
   constructor(props: any) {
     super(props);
@@ -63,11 +69,7 @@ export default class PolygonCreator extends React.Component<
     );
   }
 
-  onRegionChangeComplete(region: Region) {
-    this.setState({ region });
-  }
-
-  finish() {
+  private finish() {
     if (this.state.editing === false) {
       return;
     }
@@ -75,7 +77,7 @@ export default class PolygonCreator extends React.Component<
     const polygon = this.state.editing.polygon;
 
     if (polygon.length < 3) {
-      alert('Area should be made of atleast 3 points');
+      createError('Area', 'Area should be made of atleast 3 points');
       return;
     }
 
@@ -83,7 +85,30 @@ export default class PolygonCreator extends React.Component<
       .map((coordinate: LatLng) => [coordinate.latitude, coordinate.longitude])
       .flat();
 
-    // TODO: Detect if edges are crossing
+    // Detect if lines are crossing
+    for (let i = 1; i <= polygon.length; i++) {
+      for (let j = 1; j <= polygon.length; j++) {
+        if (i === j) {
+          continue;
+        }
+
+        if (
+          intersects(
+            polygon[i % polygon.length].latitude,
+            polygon[i % polygon.length].longitude,
+            polygon[i - 1].latitude,
+            polygon[i - 1].longitude,
+            polygon[j % polygon.length].latitude,
+            polygon[j % polygon.length].longitude,
+            polygon[j - 1].latitude,
+            polygon[j - 1].longitude,
+          )
+        ) {
+          createError('Area', 'Area has intersecting lines');
+          return;
+        }
+      }
+    }
 
     // Triangulate polygon
     const triangles = earcut(
@@ -102,7 +127,7 @@ export default class PolygonCreator extends React.Component<
     if (deviation >= 1e-10) {
       // If the deviation is too large then the polygon is either very big or
       // a weird shape
-      alert('Area is invalid');
+      createError('Area', 'The area is invalid');
       return;
     }
 
@@ -122,74 +147,103 @@ export default class PolygonCreator extends React.Component<
       editing: false,
       triangles: trianglesChunked,
     });
+
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }
 
-  onLongPress(e: MapEvent) {
+  private onMarkerMoved(e: MapEvent, original: LatLng) {
     const { editing } = this.state;
 
     if (editing === false) {
-      // We are not editing
       return;
     }
 
-    const pressCoordinate = e.nativeEvent.coordinate;
     const polygon = editing.polygon as LatLng[];
 
-    // Create a copy of the polygon coordinates
     const coordinates = [];
     for (let i = 0; i < polygon.length; i++) {
       const coordinate = polygon[i];
 
-      coordinates.push({
-        ...coordinate,
-      });
-    }
-
-    const radius = this.getAreaCornerRadius();
-
-    for (let i = 0; i < coordinates.length; i++) {
-      const coordinate = coordinates[i];
-
-      // Check if we clicked on the already selected corner
-      if (geolib.isPointWithinRadius(pressCoordinate, coordinate, radius)) {
-        // We clicked on it, remove it from the coordinates list
-        coordinates.splice(i, 1);
-
-        this.setState({
-          editing: {
-            polygon: coordinates,
-            selectedCoordinate:
-              i === editing.selectedCoordinate
-                ? null
-                : editing.selectedCoordinate,
-          },
+      if (coordinate === original) {
+        coordinates.push({
+          ...e.nativeEvent.coordinate,
         });
-        break;
+      } else {
+        coordinates.push({
+          ...coordinate,
+        });
       }
     }
-  }
-
-  onPress(e: MapEvent) {
-    const { editing } = this.state;
-    const pressCoordinate = e.nativeEvent.coordinate;
 
     this.setState({
-      triangles: null,
-      polygon: null,
+      editing: {
+        polygon: coordinates,
+        selectedCoordinate: null,
+      },
     });
 
+    Haptics.selectionAsync();
+  }
+
+  private onLongPress(e: MapEvent) {
+    const { editing } = this.state;
+
     if (editing === false) {
-      // We are not editing, start editing
-      this.setState({
-        editing: {
-          polygon: [pressCoordinate],
-          selectedCoordinate: null,
-        },
-      });
       return;
     }
 
-    // We are editing
+    let closest = null;
+    let closestDistance = Number.MAX_VALUE;
+
+    for (let i = 1; i <= editing.polygon.length; i++) {
+      const distance = geolib.getDistanceFromLine(
+        e.nativeEvent.coordinate,
+        editing.polygon[i - 1],
+        editing.polygon[i % editing.polygon.length],
+      );
+
+      if (closest === null || closestDistance > distance) {
+        closest = i - 1;
+        closestDistance = distance;
+      }
+    }
+
+    if (
+      closestDistance <= 100 / this.state.region.longitudeDelta &&
+      closest !== null
+    ) {
+      const polygon = editing.polygon as LatLng[];
+
+      // Create a copy of the polygon coordinates
+      const coordinates = [];
+      for (let i = 0; i < polygon.length; i++) {
+        const coordinate = polygon[i];
+
+        coordinates.push({
+          ...coordinate,
+        });
+      }
+
+      coordinates.splice(closest + 1, 0, e.nativeEvent.coordinate);
+
+      // Create new point at coordinate between two points
+      this.setState({
+        editing: { ...editing, polygon: coordinates },
+      });
+
+      Haptics.selectionAsync();
+    }
+  }
+
+  private onPress(e: MapEvent) {
+    const { editing } = this.state;
+
+    if (editing === false) {
+      return;
+    }
+
+    const pressCoordinate = e.nativeEvent.coordinate;
+
     if (editing.selectedCoordinate !== null) {
       // We have selected a coordinate, figure out if we are moving it or
       // deleting it
@@ -206,25 +260,20 @@ export default class PolygonCreator extends React.Component<
         });
       }
 
-      let deselectedPoint = false;
-
-      const radius = this.getAreaCornerRadius();
-
-      for (let i = 0; i < polygon.length; i++) {
-        const coordinate = polygon[i];
-
-        // Check if we clicked on the already selected corner
-        if (geolib.isPointWithinRadius(pressCoordinate, coordinate, radius)) {
-          // We clicked on it, deselect it
-          deselectedPoint = true;
-          break;
+      // Check if we clicked on the already selected corner
+      if (
+        geolib.isPointWithinRadius(
+          pressCoordinate,
+          polygon[editing.selectedCoordinate],
+          this.getAreaCornerRadius(),
+        )
+      ) {
+        if (coordinates.length <= 3) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          return;
         }
-      }
 
-      if (!deselectedPoint) {
-        // We didn't click on the already selected coordinate, move it to where
-        // we clicked.
-        coordinates[editing.selectedCoordinate] = pressCoordinate;
+        coordinates.splice(editing.selectedCoordinate, 1);
       }
 
       this.setState({
@@ -237,8 +286,7 @@ export default class PolygonCreator extends React.Component<
     }
 
     // We are editing but a corner is not selected
-    // Figure out if we are trying to select a corner, or if we are trying
-    // to create a new corner
+    // Figure out if we are trying to select a corner
 
     let closest = null;
     let closestDistance = Number.MAX_VALUE;
@@ -267,14 +315,6 @@ export default class PolygonCreator extends React.Component<
           selectedCoordinate: closest,
         },
       });
-    } else {
-      // We didn't click on a corner, create a new corner
-      this.setState({
-        editing: {
-          ...editing,
-          polygon: [...editing.polygon, pressCoordinate],
-        },
-      });
     }
   }
 
@@ -283,34 +323,41 @@ export default class PolygonCreator extends React.Component<
       <View style={styles.container}>
         <MapView
           showsUserLocation={true}
-          onRegionChangeComplete={this.onRegionChangeComplete.bind(this)}
+          onRegionChangeComplete={(region) => this.setState({ region })}
           style={styles.map}
-          mapType={MAP_TYPES.HYBRID}
+          mapType={MAP_TYPES.STANDARD}
           initialRegion={this.state.region}
           onPress={this.onPress.bind(this)}
           onLongPress={this.onLongPress.bind(this)}
         >
           {this.state.editing !== false &&
             this.state.editing.polygon.map((v: any, i: number) => (
-              <Circle
+              <Marker
                 key={'coordinate_' + i}
-                center={v}
-                radius={this.getAreaCornerRadius()}
-                strokeColor={
-                  this.state.editing !== false &&
-                  this.state.editing.selectedCoordinate === i
-                    ? '#0F0'
-                    : '#F00'
-                }
-                fillColor={
-                  this.state.editing !== false &&
-                  this.state.editing.selectedCoordinate === i
-                    ? 'rgba(0,255,0,0.5)'
-                    : 'rgba(255,0,0,0.5)'
-                }
-                strokeWidth={1}
-              />
+                coordinate={v}
+                draggable={true}
+                onDragStart={() => Haptics.selectionAsync()}
+                onDragEnd={(e) => this.onMarkerMoved(e, v)}
+                focusable={false}
+                onTouchStart={() => {
+                  // do nothing
+                }}
+                onTouchEnd={() => {
+                  // do nothing
+                }}
+              >
+                <View
+                  style={{
+                    ...styles.circle,
+                    backgroundColor:
+                      (this.state.editing as Editing).selectedCoordinate === i
+                        ? '#0F0'
+                        : '#F00',
+                  }}
+                />
+              </Marker>
             ))}
+
           {this.state.editing !== false && (
             <Polygon
               key={0}
@@ -320,6 +367,7 @@ export default class PolygonCreator extends React.Component<
               strokeWidth={1}
             />
           )}
+
           {this.state.triangles &&
             this.state.triangles.map((v: any, i: number) => (
               <Polygon
@@ -331,6 +379,7 @@ export default class PolygonCreator extends React.Component<
               />
             ))}
         </MapView>
+
         <View style={styles.buttonContainer}>
           {this.state.editing && (
             <TouchableOpacity
@@ -340,7 +389,58 @@ export default class PolygonCreator extends React.Component<
               <Text>Finish</Text>
             </TouchableOpacity>
           )}
+
+          {(this.state.editing !== false || this.state.triangles !== null) && (
+            <TouchableOpacity
+              onPress={() => {
+                Toast.hide();
+                this.setState({
+                  editing: false,
+                  triangles: null,
+                });
+              }}
+              style={[styles.bubble, styles.button]}
+            >
+              <Text>Clear</Text>
+            </TouchableOpacity>
+          )}
+
+          {this.state.editing === false && this.state.triangles === null && (
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({
+                  editing: {
+                    polygon: [
+                      {
+                        latitude: 55.37129843014639,
+                        longitude: 10.423922348532459,
+                      },
+                      {
+                        latitude: 55.37129843014639,
+                        longitude: 10.433958678550464,
+                      },
+                      {
+                        latitude: 55.365503342695625,
+                        longitude: 10.433894726044391,
+                      },
+                      {
+                        latitude: 55.36543212364314,
+                        longitude: 10.423922348532459,
+                      },
+                    ],
+                    selectedCoordinate: null,
+                  },
+                  triangles: null,
+                });
+              }}
+              style={[styles.bubble, styles.button]}
+            >
+              <Text>Create</Text>
+            </TouchableOpacity>
+          )}
         </View>
+
+        <Toast position={'top'} ref={(ref) => Toast.setRef(ref)} />
       </View>
     );
   }
@@ -363,6 +463,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     flexDirection: 'row',
     marginVertical: 20,
+  },
+  circle: {
+    backgroundColor: 'red',
+    borderRadius: 30,
+    height: 50,
+    opacity: 0.5,
+    width: 50,
   },
   container: {
     ...StyleSheet.absoluteFillObject,

@@ -26,6 +26,7 @@ module.exports = {
   ignorePatterns: ['.eslintrc.js', 'babel.config.js'],
   rules: {
     'react-native/no-color-literals': 0,
+    'react-native/no-inline-styles': 0,
     '@typescript-eslint/no-explicit-any': 0,
   }
 };
