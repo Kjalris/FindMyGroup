@@ -8,7 +8,7 @@ export class Area {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'group_id' })
-  group_id: string;
+  group_id: Group;
 
   @Column({ type: 'polygon' })
   area: string;
