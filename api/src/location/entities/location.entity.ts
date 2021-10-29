@@ -1,9 +1,14 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Member } from '../../member/entities/member.entity';
 
 @Entity()
 export class Location {
-  @PrimaryColumn({ type: 'uuid' })
-  member_id: string;
+  @OneToOne(() => Member, (member) => member.id, {
+    primary: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'member_id' })
+  member_id: Member;
 
   @Column({ type: 'timestamp' })
   timestamp: string;
