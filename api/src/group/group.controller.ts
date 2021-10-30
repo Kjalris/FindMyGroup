@@ -15,7 +15,7 @@ import {
 import { AreaService } from '../area/area.service';
 import { MemberService } from '../member/member.service';
 import { LocationService } from '../location/location.service';
-import { CreateGroupDto, GetGroupDto } from './dto/get-group.dto';
+import { CreateGroupDto, GetGroupDto } from './dto/group.dto';
 import { Group } from './entities/group.entity';
 import { GroupService } from './group.service';
 import { Response } from 'express';
