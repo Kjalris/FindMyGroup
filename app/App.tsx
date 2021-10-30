@@ -4,6 +4,7 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
 import dk from 'javascript-time-ago/locale/en-DK.json';
 import { Text, View, StyleSheet } from 'react-native';
+import AppLoading from 'expo-app-loading';
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(dk);
@@ -17,6 +18,7 @@ import PolygonCreator from './src/screens/PolygonCreatorScreen';
 import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface IntroSlide {
   title: string;
@@ -47,6 +49,7 @@ const Stack = createNativeStackNavigator();
 export default class App extends React.Component<
   unknown,
   {
+    isReady: boolean;
     showRealApp: boolean;
   }
 > {
@@ -56,8 +59,42 @@ export default class App extends React.Component<
     super(props);
 
     this.state = {
+      isReady: false,
       showRealApp: false,
     };
+  }
+
+  async componentDidMount() {
+    try {
+      const data = await AsyncStorage.getItem('intro');
+      if (data === null) {
+        return;
+      }
+
+      const parsed = JSON.parse(data);
+
+      if (parsed.done) {
+        this.setState({
+          showRealApp: true,
+        });
+      }
+    } catch {
+    } finally {
+      setTimeout(() => {
+        this.setState({
+          isReady: true,
+        });
+      }, 2000);
+    }
+  }
+
+  private doneIntro() {
+    AsyncStorage.setItem(
+      'intro',
+      JSON.stringify({
+        done: true,
+      }),
+    );
   }
 
   renderItem = ({ item }: { item: IntroSlide }) => {
@@ -79,6 +116,10 @@ export default class App extends React.Component<
   keyExtractor = (item: IntroSlide) => item.title;
 
   render() {
+    if (!this.state.isReady) {
+      return <AppLoading />;
+    }
+
     if (this.state.showRealApp) {
       return (
         <NavigationContainer>
@@ -98,11 +139,7 @@ export default class App extends React.Component<
           <AppIntroSlider
             keyExtractor={this.keyExtractor}
             renderItem={this.renderItem}
-            onDone={() =>
-              this.setState({
-                showRealApp: true,
-              })
-            }
+            onDone={this.doneIntro.bind(this)}
             bottomButton
             showSkipButton
             showPrevButton
