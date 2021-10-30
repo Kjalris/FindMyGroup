@@ -12,7 +12,6 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { AreaService } from '../area/area.service';
 import { MemberService } from '../member/member.service';
 import { LocationService } from '../location/location.service';
 import { CreateGroupDto, GetGroupDto } from './dto/group.dto';
@@ -25,7 +24,6 @@ import { Response } from 'express';
 export class GroupController {
   constructor(
     private readonly groupService: GroupService,
-    private readonly areaService: AreaService,
     private readonly memberService: MemberService,
     private readonly locationService: LocationService,
   ) {}

@@ -13,4 +13,7 @@ export class CreateGroupDto {
   @IsString()
   @MinLength(8)
   password: string;
+
+  @IsString()
+  area: string;
 }

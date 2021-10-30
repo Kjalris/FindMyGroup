@@ -5,6 +5,9 @@ export class Group {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ type: 'polygon' })
+  area: string;
+
   @Column({ length: 255 })
   name: string;
 
