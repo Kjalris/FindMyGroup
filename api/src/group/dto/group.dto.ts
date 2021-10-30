@@ -1,9 +1,4 @@
-import { IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
-
-export class GetGroupDto {
-  @IsUUID()
-  id: string;
-}
+import { IsArray, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateGroupDto {
   @IsString()
@@ -14,6 +9,6 @@ export class CreateGroupDto {
   @MinLength(8)
   password: string;
 
-  @IsString()
-  area: string;
+  @IsArray()
+  area: number[][];
 }

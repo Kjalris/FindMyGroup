@@ -5,10 +5,8 @@ import configuration, { DatabaseConfig } from './common/config/configuration';
 import { validation } from './common/config/validation';
 import { GroupModule } from './group/group.module';
 import { MemberModule } from './member/member.module';
-import { AreaModule } from './area/area.module';
 import { LocationModule } from './location/location.module';
 import { Group } from './group/entities/group.entity';
-import { Area } from './area/entities/area.entity';
 import { Member } from './member/entities/member.entity';
 import { Location } from './location/entities/location.entity';
 
@@ -33,7 +31,7 @@ import { Location } from './location/entities/location.entity';
           username: databaseConfig.username,
           password: databaseConfig.password,
           database: databaseConfig.database,
-          entities: [Group, Area, Member, Location],
+          entities: [Group, Member, Location],
           autoLoadModels: true,
           synchronize: process.env.TYPEORM_SYNCRONIZE === 'true',
           keepConnectionAlive: true,
@@ -41,7 +39,6 @@ import { Location } from './location/entities/location.entity';
       },
     }),
     GroupModule,
-    AreaModule,
     MemberModule,
     LocationModule,
   ],

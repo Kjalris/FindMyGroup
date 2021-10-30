@@ -17,12 +17,10 @@ export class GroupService {
         name: result.name,
         id: result.id,
         area: result.area
-          .substring(2, result.area.length - 2)
-          .split('),(')
-          .map((v) => [
-            parseFloat(v.split(',')[0]),
-            parseFloat(v.split(',')[1]),
-          ]),
+          .map((v) => {
+            return `(${v[0]},${v[1]})`;
+          })
+          .toString(),
       };
     });
   }

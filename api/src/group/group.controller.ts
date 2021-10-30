@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { MemberService } from '../member/member.service';
 import { LocationService } from '../location/location.service';
-import { CreateGroupDto, GetGroupDto } from './dto/group.dto';
+import { CreateGroupDto } from './dto/group.dto';
 import { Group } from './entities/group.entity';
 import { GroupService } from './group.service';
 import { Response } from 'express';
@@ -37,18 +37,16 @@ export class GroupController {
   }
 
   @Get(':id')
-  private getGroup(
-    @Param(new ValidationPipe({ transform: true })) params: GetGroupDto,
-  ): Promise<Group> {
-    return this.groupService.get(params.id);
+  private getGroup(@Param('id', ParseUUIDPipe) id: string): Promise<Group> {
+    return this.groupService.get(id);
   }
 
   @Delete(':id')
   private deleteGroup(
-    @Param(new ValidationPipe({ transform: true })) params: GetGroupDto,
+    @Param('id', ParseUUIDPipe) id: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<null> {
-    return this.groupService.delete(params.id).then((result) => {
+    return this.groupService.delete(id).then((result) => {
       if (result) {
         res.status(HttpStatus.NO_CONTENT);
       } else {
@@ -56,12 +54,5 @@ export class GroupController {
       }
       return null;
     });
-  }
-
-  @Get(':group_id/area')
-  private getArea(
-    @Param('group_id', ParseUUIDPipe) group_id: string,
-  ): Promise<number[][]> {
-    return this.areaService.get(group_id);
   }
 }
