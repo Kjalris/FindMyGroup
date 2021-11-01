@@ -18,7 +18,7 @@
     - GET: Get a group members' entity.
     - DELETE: Delete a group members' entity
 - /groups/:id/members/:id/location
-    - POST: Update a group members' location.
+    - PUT: Update a group members' location.
 
 
 ### References
