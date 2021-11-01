@@ -88,7 +88,7 @@ export default class PolygonCreator extends React.Component<
     // Detect if lines are crossing
     for (let i = 1; i <= polygon.length; i++) {
       for (let j = 1; j <= polygon.length; j++) {
-        if (i === j) {
+        if (Math.abs(i - j) <= 1) {
           continue;
         }
 
