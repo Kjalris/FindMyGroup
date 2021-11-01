@@ -94,7 +94,11 @@ export default class App extends React.Component<
       JSON.stringify({
         done: true,
       }),
-    );
+    ).finally(() => {
+      this.setState({
+        isReady: true,
+      });
+    });
   }
 
   renderItem = ({ item }: { item: IntroSlide }) => {
