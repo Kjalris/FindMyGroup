@@ -12,7 +12,13 @@ export class GroupService {
   ) {}
 
   create(body: any): Promise<any> {
-    body.area = body.area.map((v) => {return `(${v[0]},${v[1]})`;}).toString().replace(/^/,'(').replace(/$/,')');
+    body.area = body.area
+      .map((v) => {
+        return `(${v[0]},${v[1]})`;
+      })
+      .toString()
+      .replace(/^/, '(')
+      .replace(/$/, ')');
     return this.groupRepository.save(body).then((result) => {
       return {
         name: result.name,
@@ -24,7 +30,7 @@ export class GroupService {
             parseFloat(v.split(',')[0]),
             parseFloat(v.split(',')[1]),
           ]),
-      }
+      };
     });
   }
 
