@@ -1,4 +1,4 @@
-import { IsArray, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateGroupDto {
   @IsString()
@@ -9,6 +9,6 @@ export class CreateGroupDto {
   @MinLength(8)
   password: string;
 
-  @IsArray()
-  area: number[][];
+  //@IsString()
+  area: any;
 }

@@ -11,17 +11,20 @@ export class GroupService {
     private readonly groupRepository: Repository<Group>,
   ) {}
 
-  create(body: CreateGroupDto): Promise<any> {
+  create(body: any): Promise<any> {
+    body.area = body.area.map((v) => {return `(${v[0]},${v[1]})`;}).toString().replace(/^/,'(').replace(/$/,')');
     return this.groupRepository.save(body).then((result) => {
       return {
         name: result.name,
         id: result.id,
         area: result.area
-          .map((v) => {
-            return `(${v[0]},${v[1]})`;
-          })
-          .toString(),
-      };
+          .substring(2, result.area.length - 2)
+          .split('),(')
+          .map((v) => [
+            parseFloat(v.split(',')[0]),
+            parseFloat(v.split(',')[1]),
+          ]),
+      }
     });
   }
 

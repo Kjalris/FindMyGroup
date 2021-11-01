@@ -30,9 +30,9 @@ export class GroupController {
 
   @Post()
   private createGroup(
-    @Body(new ValidationPipe({ transform: true }))
-    body: CreateGroupDto,
-  ): Promise<Group> {
+    @Body()
+    body: any,
+  ): Promise<any> {
     return this.groupService.create(body);
   }
 
