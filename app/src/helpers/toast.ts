@@ -18,3 +18,12 @@ export function createWarning(title: string, description: string): void {
   });
   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 }
+
+export function createSuccess(title: string, description: string): void {
+  Toast.show({
+    type: 'success',
+    text1: title,
+    text2: description,
+  });
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+}
