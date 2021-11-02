@@ -19,7 +19,7 @@ export class Member {
   @Column({ type: 'smallint' })
   role: number;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, unique: true })
   nickname: string;
 
   @Column()

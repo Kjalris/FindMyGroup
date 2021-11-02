@@ -10,16 +10,16 @@ export class MemberService {
     private readonly memberRepository: Repository<Member>,
   ) {}
 
-  // TODO
-  // createMember(body: any): Promise<any> {
-  //   return this.memberRepository.save(body).then((result) => {
-  //     return {
-  //       name: result.name,
-  //       id: result.id,
-  //       area: result.
-  //     };
-  //   });
-  // }
+  createMember(body: any): Promise<any> {
+    return this.memberRepository.save(body).then((result) => {
+      return {
+        name: result.nickname,
+        id: result.id,
+        group_id: result.group_id,
+        role: result.role,
+      };
+    });
+  }
 
   // TODO
   // getMembers(id: string): any {

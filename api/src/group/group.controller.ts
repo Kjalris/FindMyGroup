@@ -28,6 +28,9 @@ export class GroupController {
     private readonly locationService: LocationService,
   ) {}
 
+  //
+  // Group
+  //
   @Post()
   private createGroup(
     @Body()
@@ -55,4 +58,20 @@ export class GroupController {
       return null;
     });
   }
+
+  //
+  // Member
+  //
+  // TODO: Fix group id
+  @Post(':id/members')
+  private createMember(
+    @Body()
+    body: any,
+  ): Promise<any> {
+    return this.memberService.createMember(body);
+  }
+
+  //
+  // Location
+  //
 }
