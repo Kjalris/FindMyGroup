@@ -37,17 +37,18 @@ export class MemberService {
       });
   }
 
-  // TODO
-  // getMember(id: string): any {
-  //   return this.memberRepository
-  //     .findOne({ where: { id: id } })
-  //     .then((result) => {
-  //       return {
-  //         name: result.name,
-  //         area: result.
-  //       };
-  //     });
-  // }
+  getMember(parems: any): any {
+    return this.memberRepository
+      .findOne({ where: { id: parems.id, group_id: parems.group_id } })
+      .then((result) => {
+        return {
+          nickname: result.nickname,
+          id: result.id,
+          group_id: parems.group_id,
+          role: result.role,
+        };
+      });
+  }
 
   // TODO
   // deleteMember(id: string): Promise<boolean> {

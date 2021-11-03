@@ -80,6 +80,17 @@ export class GroupController {
     return this.memberService.getMembers(group_id);
   }
 
+  @Get(':group_id/members/:id')
+  private getMember(
+    @Param('group_id', ParseUUIDPipe) group_id: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<any> {
+    return this.memberService.getMember({
+      id: id,
+      group_id: group_id,
+    });
+  }
+
   //
   // Location
   //
