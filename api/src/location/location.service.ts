@@ -19,9 +19,19 @@ export class LocationService {
         } else {
           this.locationRepository.save({ member_id: body.member_id }, body);
         }
-        return this.locationRepository.findOne({
-          where: { member_id: body.member_id },
-        });
+      })
+      .then(() => {
+        return this.locationRepository
+          .findOne({
+            where: { member_id: body.member_id },
+          })
+          .then((result) => {
+            return {
+              member_id: body.member_id,
+              timestamp: result.timestamp,
+              point: [result.point['x'], result.point['y']],
+            };
+          });
       });
   }
 }
