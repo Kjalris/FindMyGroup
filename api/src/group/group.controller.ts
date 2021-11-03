@@ -34,7 +34,7 @@ export class GroupController {
   @Post()
   private createGroup(
     @Body()
-    body: any,
+    body: CreateGroupDto,
   ): Promise<any> {
     return this.groupService.create(body);
   }
@@ -62,13 +62,15 @@ export class GroupController {
   //
   // Member
   //
-  // TODO: Fix group id
   @Post(':id/members')
   private createMember(
+    @Param('id', ParseUUIDPipe) id: string,
     @Body()
     body: any,
   ): Promise<any> {
-    return this.memberService.createMember(body);
+    return this.memberService.createMember(
+      Object.assign(body, { group_id: id }),
+    );
   }
 
   //

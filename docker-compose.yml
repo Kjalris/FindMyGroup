@@ -6,7 +6,7 @@ services:
     #image: postgis/postgis
     #build: ./database
     container_name: findmygroup-db
-    restart: unless-stopped
+    #restart: unless-stopped
     environment:
       POSTGRES_USER: findmygroup
       POSTGRES_DB: findmygroup
@@ -17,7 +17,7 @@ services:
   findmygroup-pgadmin:
     image: dpage/pgadmin4
     container_name: findmygroup-pgadmin
-    restart: unless-stopped
+    #restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: example@example.com
       PGADMIN_DEFAULT_PASSWORD: pass

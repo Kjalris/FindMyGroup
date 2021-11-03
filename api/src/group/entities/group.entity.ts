@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Member } from 'src/member/entities/member.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class Group {
@@ -13,4 +14,7 @@ export class Group {
 
   @Column()
   password: string;
+
+  @OneToMany(() => Member, (member) => member.group_id)
+  members: Member[];
 }
