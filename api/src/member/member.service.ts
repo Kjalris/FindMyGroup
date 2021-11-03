@@ -22,7 +22,7 @@ export class MemberService {
     });
   }
 
-  getMembers(group_id: string): any {
+  getMembers(group_id: string): Promise<any> {
     return this.memberRepository
       .find({ where: { group_id: group_id } })
       .then((result) => {
@@ -37,7 +37,7 @@ export class MemberService {
       });
   }
 
-  getMember(parems: any): any {
+  getMember(parems: any): Promise<any> {
     return this.memberRepository
       .findOne({ where: { id: parems.id, group_id: parems.group_id } })
       .then((result) => {
@@ -50,15 +50,16 @@ export class MemberService {
       });
   }
 
-  // TODO
-  // deleteMember(id: string): Promise<boolean> {
-  //   return this.memberRepository.count({ where: { id: id } }).then((result) => {
-  //     if (result >= 1) {
-  //       this.memberRepository.delete(id);
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   });
-  // }
+  deleteMember(parems: any): Promise<boolean> {
+    return this.memberRepository
+      .count({ where: { id: parems.id, group_id: parems.group_id } })
+      .then((result) => {
+        if (result >= 1) {
+          this.memberRepository.delete(parems.id);
+          return true;
+        } else {
+          return false;
+        }
+      });
+  }
 }

@@ -91,6 +91,27 @@ export class GroupController {
     });
   }
 
+  @Delete(':group_id/members/:id')
+  private deleteMember(
+    @Param('group_id', ParseUUIDPipe) group_id: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<null> {
+    return this.memberService
+      .deleteMember({
+        id: id,
+        group_id: group_id,
+      })
+      .then((result) => {
+        if (result) {
+          res.status(HttpStatus.NO_CONTENT);
+        } else {
+          res.status(HttpStatus.NOT_FOUND);
+        }
+        return null;
+      });
+  }
+
   //
   // Location
   //
