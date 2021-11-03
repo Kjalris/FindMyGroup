@@ -9,4 +9,19 @@ export class LocationService {
     @InjectRepository(Location)
     private readonly locationRepository: Repository<Location>,
   ) {}
+
+  updateLocation(body: any): Promise<any> {
+    return this.locationRepository
+      .count({ where: { member_id: body.member_id } })
+      .then((result) => {
+        if (result >= 1) {
+          this.locationRepository.update({ member_id: body.member_id }, body);
+        } else {
+          this.locationRepository.save({ member_id: body.member_id }, body);
+        }
+        return this.locationRepository.findOne({
+          where: { member_id: body.member_id },
+        });
+      });
+  }
 }

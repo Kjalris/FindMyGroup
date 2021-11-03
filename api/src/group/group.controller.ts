@@ -8,6 +8,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Res,
   UseInterceptors,
   ValidationPipe,
@@ -115,4 +116,21 @@ export class GroupController {
   //
   // Location
   //
+  // @Get(':group_id/location')
+  // private getLocations(
+  //   @Param('group_id', ParseUUIDPipe) group_id: string,
+  // ): Promise<any> {
+  //   return this.locationService.getMembers(group_id);
+  // }
+
+  @Put(':group_id/members/:member_id/location')
+  private updateLocation(
+    @Param('member_id', ParseUUIDPipe) member_id: string,
+    @Body()
+    body: any,
+  ): Promise<any> {
+    return this.locationService.updateLocation(
+      Object.assign(body, { member_id: member_id }),
+    );
+  }
 }

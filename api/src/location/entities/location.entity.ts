@@ -10,7 +10,7 @@ export class Location {
   @JoinColumn({ name: 'member_id' })
   member_id: Member;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   timestamp: string;
 
   @Column({ type: 'point' })
