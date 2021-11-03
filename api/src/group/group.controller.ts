@@ -62,15 +62,22 @@ export class GroupController {
   //
   // Member
   //
-  @Post(':id/members')
+  @Post(':group_id/members')
   private createMember(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('group_id', ParseUUIDPipe) group_id: string,
     @Body()
     body: any,
   ): Promise<any> {
     return this.memberService.createMember(
-      Object.assign(body, { group_id: id }),
+      Object.assign(body, { group_id: group_id }),
     );
+  }
+
+  @Get(':group_id/members')
+  private getMembers(
+    @Param('group_id', ParseUUIDPipe) group_id: string,
+  ): Promise<any> {
+    return this.memberService.getMembers(group_id);
   }
 
   //
