@@ -11,27 +11,15 @@ export class LocationService {
   ) {}
 
   updateLocation(body: any): Promise<any> {
-    return this.locationRepository
-      .count({ where: { member_id: body.member_id } })
-      .then((result) => {
-        if (result >= 1) {
-          this.locationRepository.update({ member_id: body.member_id }, body);
-        } else {
-          this.locationRepository.save({ member_id: body.member_id }, body);
-        }
-      })
-      .then(() => {
-        return this.locationRepository
-          .findOne({
-            where: { member_id: body.member_id },
-          })
-          .then((result) => {
-            return {
-              member_id: body.member_id,
-              timestamp: result.timestamp,
-              point: [result.point['x'], result.point['y']],
-            };
-          });
-      });
+    const pointReturnFormat = body.point; // Save backup of old format.
+    body.point = `(${body.point[0]},${body.point[1]})`;
+    this.locationRepository.delete(body.member_id);
+    return this.locationRepository.save(body).then((result) => {
+      return {
+        member_id: body.member_id,
+        timestamp: result.timestamp,
+        point: pointReturnFormat,
+      };
+    });
   }
 }

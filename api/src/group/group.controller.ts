@@ -129,7 +129,6 @@ export class GroupController {
     @Body()
     body: any,
   ): Promise<any> {
-    body.point = `(${body.point[0]},${body.point[1]})`;
     return this.locationService.updateLocation(
       Object.assign(body, { member_id: member_id }),
     );
