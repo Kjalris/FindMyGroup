@@ -28,6 +28,16 @@ export class LocationService {
       .createQueryBuilder('location')
       .leftJoinAndSelect('location.member_id', 'member')
       .where(`member.group_id = '${body.group_id}'`)
-      .getMany();
+      .getMany()
+      .then((result) => {
+        return result.map((v) => {
+          return {
+            member_id: v.member_id.id,
+            group_id: body.group_id,
+            timestamp: v.timestamp,
+            point: [v.point['x'], v.point['y']],
+          };
+        });
+      });
   }
 }
