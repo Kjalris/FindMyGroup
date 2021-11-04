@@ -22,4 +22,12 @@ export class LocationService {
       };
     });
   }
+
+  getLocations(body: any): Promise<any> {
+    return this.locationRepository
+      .createQueryBuilder('location')
+      .leftJoinAndSelect('location.member_id', 'member')
+      .where(`member.group_id = '${body.group_id}'`)
+      .getMany();
+  }
 }

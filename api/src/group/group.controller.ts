@@ -116,12 +116,16 @@ export class GroupController {
   //
   // Location
   //
-  // @Get(':group_id/location')
-  // private getLocations(
-  //   @Param('group_id', ParseUUIDPipe) group_id: string,
-  // ): Promise<any> {
-  //   return this.locationService.getMembers(group_id);
-  // }
+  @Get(':group_id/locations')
+  private getLocations(
+    @Param('group_id', ParseUUIDPipe) group_id: string,
+  ): Promise<any> {
+    return this.locationService.getLocations(
+      Object.assign(this.memberService.getMembers(group_id), {
+        group_id: group_id,
+      }),
+    );
+  }
 
   @Put(':group_id/members/:member_id/location')
   private updateLocation(
