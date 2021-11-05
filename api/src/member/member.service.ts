@@ -54,8 +54,9 @@ export class MemberService {
       .count({ where: { id: parems.id, group_id: parems.group_id } })
       .then((result) => {
         if (result >= 1) {
-          this.memberRepository.delete(parems.id);
-          return true;
+          return this.memberRepository.delete(parems.id).then(() => {
+            return true;
+          });
         } else {
           return false;
         }
