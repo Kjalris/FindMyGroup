@@ -1,43 +1,82 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import { LatLong } from '../common/dto/latlong.dto';
+import { Connection, Repository } from 'typeorm';
+import { UpdateLocationDto } from './dto/update-location.dto';
 import { Location } from './entities/location.entity';
+import { LocationWithLatLong } from './interfaces/location-lat-long.interface';
+import { Member } from '../member/entities/member.entity';
 
 @Injectable()
 export class LocationService {
   constructor(
     @InjectRepository(Location)
     private readonly locationRepository: Repository<Location>,
+    @InjectConnection()
+    private readonly connection: Connection,
   ) {}
 
-  updateLocation(body: any): Promise<any> {
-    const pointReturnFormat = body.point; // Save backup of old format.
-    body.point = `(${body.point[0]},${body.point[1]})`;
-    this.locationRepository.delete(body.member_id);
-    return this.locationRepository.save(body).then((result) => {
-      return {
-        member_id: body.member_id,
-        timestamp: result.timestamp,
-        point: pointReturnFormat,
+  async updateLocation(
+    groupId: string,
+    memberId: string,
+    body: UpdateLocationDto,
+  ): Promise<LocationWithLatLong> {
+    const location = this.locationRepository.create({
+      memberId,
+      point: `(${body.point.latitude},${body.point.longitude})`,
+      timestamp: new Date(),
+    });
+
+    await this.locationRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Location)
+      .values(location)
+      .onConflict(
+        '("memberId") DO UPDATE SET point = EXCLUDED.point, timestamp = EXCLUDED.timestamp',
+      )
+      .execute();
+
+    return {
+      memberId: location.memberId,
+      point: this.convertPointToLatLong(location.point as string),
+      timestamp: location.timestamp,
+    };
+  }
+
+  async getLocations(groupId: string): Promise<any> {
+    const locations = await this.connection
+      .createQueryBuilder()
+      .select()
+      .from(Member, 'member')
+      .innerJoin(Location, 'location', 'location.memberId = member.id')
+      .addSelect([
+        'member."groupId" as "groupId"',
+        'member.id AS "memberId"',
+        'member.nickname AS nickname',
+        'location.point AS point',
+        'location.timestamp AS timestamp',
+      ])
+      .where('member."groupId" = :groupId', {
+        groupId,
+      })
+      .execute();
+
+    return locations.map((v) => {
+      v.point = {
+        latitude: v.point.x,
+        longitude: v.point.y,
       };
+      return v;
     });
   }
 
-  getLocations(body: any): Promise<any> {
-    return this.locationRepository
-      .createQueryBuilder('location')
-      .leftJoinAndSelect('location.member_id', 'member')
-      .where(`member.group_id = '${body.group_id}'`)
-      .getMany()
-      .then((result) => {
-        return result.map((v) => {
-          return {
-            member_id: v.member_id.id,
-            group_id: body.group_id,
-            timestamp: v.timestamp,
-            point: [v.point['x'], v.point['y']],
-          };
-        });
-      });
+  private convertPointToLatLong(point: string): LatLong {
+    const [lat, long] = point.substring(1, point.length - 1).split(',');
+
+    return {
+      latitude: parseFloat(lat),
+      longitude: parseFloat(long),
+    };
   }
 }

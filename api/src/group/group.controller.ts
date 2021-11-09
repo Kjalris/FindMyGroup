@@ -16,9 +16,11 @@ import {
 import { MemberService } from '../member/member.service';
 import { LocationService } from '../location/location.service';
 import { CreateGroupDto } from './dto/group.dto';
-import { Group } from './entities/group.entity';
 import { GroupService } from './group.service';
 import { Response } from 'express';
+import { GroupWithLatLong } from './interfaces/group-with-latlong.interface';
+import { CreateMemberDto } from 'src/member/dto/create-member.dto';
+import { UpdateLocationDto } from 'src/location/dto/update-location.dto';
 
 @Controller('groups')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -34,14 +36,16 @@ export class GroupController {
   //
   @Post()
   private createGroup(
-    @Body()
+    @Body(ValidationPipe)
     body: CreateGroupDto,
-  ): Promise<any> {
+  ): Promise<GroupWithLatLong> {
     return this.groupService.create(body);
   }
 
   @Get(':id')
-  private getGroup(@Param('id', ParseUUIDPipe) id: string): Promise<Group> {
+  private getGroup(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<GroupWithLatLong> {
     return this.groupService.get(id);
   }
 
@@ -49,8 +53,54 @@ export class GroupController {
   private deleteGroup(
     @Param('id', ParseUUIDPipe) id: string,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<null> {
+  ): Promise<void> {
     return this.groupService.delete(id).then((result) => {
+      if (result) {
+        res.status(HttpStatus.NO_CONTENT);
+      } else {
+        res.status(HttpStatus.NOT_FOUND);
+      }
+    });
+  }
+
+  //
+  // Member
+  //
+  @Post(':groupId/members')
+  private createMember(
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Body(
+      new ValidationPipe({
+        transform: true,
+      }),
+    )
+    body: CreateMemberDto,
+  ): Promise<any> {
+    return this.memberService.createMember(groupId, body);
+  }
+
+  @Get(':groupId/members')
+  private getMembers(
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+  ): Promise<any> {
+    return this.memberService.getMembers(groupId);
+  }
+
+  @Get(':groupId/members/:memberId')
+  private getMember(
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
+  ): Promise<any> {
+    return this.memberService.getMember(groupId, memberId);
+  }
+
+  @Delete(':groupId/members/:memberId')
+  private deleteMember(
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<null> {
+    return this.memberService.deleteMember(groupId, memberId).then((result) => {
       if (result) {
         res.status(HttpStatus.NO_CONTENT);
       } else {
@@ -61,80 +111,22 @@ export class GroupController {
   }
 
   //
-  // Member
-  //
-  @Post(':group_id/members')
-  private createMember(
-    @Param('group_id', ParseUUIDPipe) group_id: string,
-    @Body()
-    body: any,
-  ): Promise<any> {
-    return this.memberService.createMember(
-      Object.assign(body, { group_id: group_id }),
-    );
-  }
-
-  @Get(':group_id/members')
-  private getMembers(
-    @Param('group_id', ParseUUIDPipe) group_id: string,
-  ): Promise<any> {
-    return this.memberService.getMembers(group_id);
-  }
-
-  @Get(':group_id/members/:id')
-  private getMember(
-    @Param('group_id', ParseUUIDPipe) group_id: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<any> {
-    return this.memberService.getMember({
-      id: id,
-      group_id: group_id,
-    });
-  }
-
-  @Delete(':group_id/members/:id')
-  private deleteMember(
-    @Param('group_id', ParseUUIDPipe) group_id: string,
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<null> {
-    return this.memberService
-      .deleteMember({
-        id: id,
-        group_id: group_id,
-      })
-      .then((result) => {
-        if (result) {
-          res.status(HttpStatus.NO_CONTENT);
-        } else {
-          res.status(HttpStatus.NOT_FOUND);
-        }
-        return null;
-      });
-  }
-
-  //
   // Location
   //
-  @Get(':group_id/locations')
-  private getLocations(
-    @Param('group_id', ParseUUIDPipe) group_id: string,
+  @Get(':groupId/locations')
+  private async getLocations(
+    @Param('groupId', ParseUUIDPipe) groupId: string,
   ): Promise<any> {
-    return this.locationService.getLocations(
-      Object.assign(this.memberService.getMembers(group_id), {
-        group_id: group_id,
-      }),
-    );
+    return this.locationService.getLocations(groupId);
   }
 
-  @Put(':group_id/members/:member_id/location')
+  @Put(':groupId/members/:memberId/location')
   private updateLocation(
-    @Param('member_id', ParseUUIDPipe) member_id: string,
-    @Body()
-    body: any,
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
+    @Body(ValidationPipe)
+    body: UpdateLocationDto,
   ): Promise<any> {
-    return this.locationService.updateLocation(
-      Object.assign(body, { member_id: member_id }),
-    );
+    return this.locationService.updateLocation(groupId, memberId, body);
   }
 }

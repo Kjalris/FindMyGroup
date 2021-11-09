@@ -7,12 +7,12 @@ export class Location {
     primary: true,
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'member_id' })
-  member_id: Member;
+  @JoinColumn({ name: 'memberId' })
+  memberId: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  timestamp: string;
+  timestamp: Date;
 
   @Column({ type: 'point' })
-  point: string;
+  point: { x: number; y: number } | string;
 }

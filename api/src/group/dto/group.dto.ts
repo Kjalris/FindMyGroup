@@ -1,4 +1,13 @@
-import { IsString, MaxLength, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+import { LatLong } from '../../common/dto/latlong.dto';
 
 export class CreateGroupDto {
   @IsString()
@@ -9,6 +18,11 @@ export class CreateGroupDto {
   @MinLength(8)
   password: string;
 
-  //@IsString()
-  area: any;
+  @IsArray()
+  @ArrayMinSize(3)
+  @ValidateNested({
+    each: true,
+  })
+  @Type(() => LatLong)
+  area: LatLong[];
 }

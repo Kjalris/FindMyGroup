@@ -15,6 +15,6 @@ export class Group {
   @Column()
   password: string;
 
-  @OneToMany(() => Member, (member) => member.group_id)
+  @OneToMany(() => Member, (member) => member.groupId)
   members: Member[];
 }

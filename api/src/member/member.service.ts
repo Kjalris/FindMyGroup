@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateMemberDto } from './dto/create-member.dto';
 import { Member } from './entities/member.entity';
 
 @Injectable()
@@ -10,53 +15,54 @@ export class MemberService {
     private readonly memberRepository: Repository<Member>,
   ) {}
 
-  createMember(body: any): Promise<any> {
-    return this.memberRepository.save(body).then((result) => {
-      return {
-        name: result.nickname,
-        id: result.id,
-        group_id: result.group_id,
-        role: result.role,
-      };
+  async createMember(groupId: string, input: CreateMemberDto): Promise<Member> {
+    const member = this.memberRepository.create({
+      nickname: input.nickname,
+      role: input.role,
+      password: input.nickname,
+      groupId,
     });
+
+    await this.memberRepository.insert(member).catch((err) => {
+      if (err.code == '23505') {
+        throw new BadRequestException('Nickname already taken');
+      }
+
+      throw err;
+    });
+
+    return member;
   }
 
-  getMembers(group_id: string): Promise<any> {
-    return this.memberRepository
-      .find({ where: { group_id: group_id } })
-      .then((result) => {
-        return result.map((v) => {
-          return {
-            nickname: v.nickname,
-            id: v.id,
-            group_id: group_id,
-            role: v.role,
-          };
-        });
-      });
+  getMembers(groupId: string): Promise<any> {
+    return this.memberRepository.find({ where: { groupId } });
   }
 
-  getMember(parems: any): Promise<any> {
-    return this.memberRepository
-      .findOne({ where: { id: parems.id, group_id: parems.group_id } })
-      .then((result) => {
-        return {
-          nickname: result.nickname,
-          id: result.id,
-          group_id: parems.group_id,
-          role: result.role,
-        };
-      });
+  async getMember(groupId, id: string): Promise<Member> {
+    const member = await this.memberRepository.findOne({
+      where: { id, groupId },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Member not found');
+    }
+
+    return member;
   }
 
-  deleteMember(parems: any): Promise<boolean> {
+  deleteMember(groupId: string, id: string): Promise<boolean> {
     return this.memberRepository
-      .count({ where: { id: parems.id, group_id: parems.group_id } })
+      .count({ where: { groupId, id } })
       .then((result) => {
         if (result >= 1) {
-          return this.memberRepository.delete(parems.id).then(() => {
-            return true;
-          });
+          return this.memberRepository
+            .delete({
+              groupId,
+              id,
+            })
+            .then(() => {
+              return true;
+            });
         } else {
           return false;
         }

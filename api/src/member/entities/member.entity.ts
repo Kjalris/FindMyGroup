@@ -4,24 +4,33 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { Group } from '../../group/entities/group.entity';
 
+export enum MemberRoleEnum {
+  'OWNER' = 0,
+  'MEMBER' = 1,
+}
+
 @Entity()
+@Unique('unique', ['groupId', 'nickname'])
 export class Member {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => Group, (group) => group.id, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'group_id' })
-  group_id: Group;
+  @JoinColumn({ name: 'groupId' })
+  groupId: string;
 
-  @Column({ type: 'smallint' })
-  role: number;
+  @Column({ type: 'enum', enum: MemberRoleEnum })
+  role: MemberRoleEnum;
 
-  @Column({ length: 255, unique: true })
+  @Column({ length: 255 })
   nickname: string;
 
-  @Column()
+  @Column({
+    select: false,
+  })
   password: string;
 }

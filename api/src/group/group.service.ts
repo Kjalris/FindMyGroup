@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { LatLong } from 'src/common/dto/latlong.dto';
 import { Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/group.dto';
 import { Group } from './entities/group.entity';
+import { GroupWithLatLong } from './interfaces/group-with-latlong.interface';
 
 @Injectable()
 export class GroupService {
@@ -11,54 +13,69 @@ export class GroupService {
     private readonly groupRepository: Repository<Group>,
   ) {}
 
-  create(body: any): Promise<any> {
-    body.area = body.area
-      .map((v) => {
-        return `(${v[0]},${v[1]})`;
-      })
+  create(group: CreateGroupDto): Promise<GroupWithLatLong> {
+    const area = group.area
+      .map((v) => `(${v.latitude},${v.longitude})`)
       .toString()
       .replace(/^/, '(')
       .replace(/$/, ')');
-    return this.groupRepository.save(body).then((result) => {
-      return {
-        name: result.name,
-        id: result.id,
-        area: result.area
-          .substring(2, result.area.length - 2)
-          .split('),(')
-          .map((v) => [
-            parseFloat(v.split(',')[0]),
-            parseFloat(v.split(',')[1]),
-          ]),
-      };
-    });
-  }
 
-  get(id: string): any {
     return this.groupRepository
-      .findOne({ where: { id: id } })
+      .save({
+        name: group.name,
+        password: group.password,
+        area,
+      })
       .then((result) => {
         return {
+          id: result.id,
           name: result.name,
-          area: result.area
-            .substring(2, result.area.length - 2)
-            .split('),(')
-            .map((v) => [
-              parseFloat(v.split(',')[0]),
-              parseFloat(v.split(',')[1]),
-            ]),
+          area: this.convertPolygonToLatLongArr(result.area),
         };
       });
   }
 
-  delete(id: string): Promise<boolean> {
-    return this.groupRepository.count({ where: { id: id } }).then((result) => {
-      if (result >= 1) {
-        this.groupRepository.delete(id);
-        return true;
-      } else {
-        return false;
-      }
+  async get(id: string): Promise<GroupWithLatLong> {
+    const result = await this.groupRepository.findOne({
+      where: {
+        id,
+      },
     });
+
+    if (result === undefined) {
+      throw new NotFoundException('Group not found');
+    }
+
+    return {
+      id: result.id,
+      name: result.name,
+      area: this.convertPolygonToLatLongArr(result.area),
+    };
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const count = await this.groupRepository.count({ where: { id: id } });
+
+    if (count === 0) {
+      return false;
+    }
+
+    await this.groupRepository.delete(id);
+
+    return true;
+  }
+
+  private convertPolygonToLatLongArr(polygon: string): LatLong[] {
+    return polygon
+      .substring(2, polygon.length - 2)
+      .split('),(')
+      .map((v) => {
+        const [lat, long] = v.split(',');
+
+        return {
+          latitude: parseFloat(lat),
+          longitude: parseFloat(long),
+        };
+      });
   }
 }
