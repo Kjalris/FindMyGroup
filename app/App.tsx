@@ -120,7 +120,6 @@ export default class App extends React.Component<
   keyExtractor = (item: IntroSlide) => item.title;
 
   render() {
-    console.log(this.state);
     if (!this.state.isReady) {
       return <AppLoading />;
     }
