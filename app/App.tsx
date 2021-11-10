@@ -19,6 +19,7 @@ import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GroupScreen from './src/screens/GroupScreen';
 
 interface IntroSlide {
   title: string;
@@ -130,6 +131,7 @@ export default class App extends React.Component<
           <Stack.Navigator>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Map" component={MapScreen} />
+            <Stack.Screen name="Group" component={GroupScreen} />
             <Stack.Screen name="PolygonCreator" component={PolygonCreator} />
             <Stack.Screen name="QRScan" component={QrCodeScannerScreen} />
             <Stack.Screen name="QRCreate" component={QrCodeCreatorScreen} />
