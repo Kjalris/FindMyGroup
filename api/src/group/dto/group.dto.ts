@@ -15,6 +15,10 @@ export class CreateGroupDto {
   name: string;
 
   @IsString()
+  @MaxLength(255)
+  nickname: string;
+
+  @IsString()
   @MinLength(8)
   password: string;
 

@@ -33,7 +33,11 @@ export default class GroupScreen extends React.Component<
   render() {
     return (
       <View>
-        <Text>You are in {this.state.groups.length} groups</Text>
+        <Text>
+          You are in {this.state.groups.length} group
+          {this.state.groups.length === 1 ? '' : 's'}
+        </Text>
+        <Text>{JSON.stringify(this.state.groups, undefined, 4)}</Text>
         <Toast position={'top'} ref={(ref) => Toast.setRef(ref)} />
       </View>
     );

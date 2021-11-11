@@ -21,6 +21,7 @@ import { Response } from 'express';
 import { GroupWithLatLong } from './interfaces/group-with-latlong.interface';
 import { CreateMemberDto } from 'src/member/dto/create-member.dto';
 import { UpdateLocationDto } from 'src/location/dto/update-location.dto';
+import { Member } from 'src/member/entities/member.entity';
 
 @Controller('groups')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -38,7 +39,10 @@ export class GroupController {
   private createGroup(
     @Body(ValidationPipe)
     body: CreateGroupDto,
-  ): Promise<GroupWithLatLong> {
+  ): Promise<{
+    member: Member;
+    group: GroupWithLatLong;
+  }> {
     return this.groupService.create(body);
   }
 

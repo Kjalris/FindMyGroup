@@ -14,12 +14,13 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import HomeScreen from './src/screens/HomeScreen';
 import MapScreen from './src/screens/MapScreen';
-import PolygonCreator from './src/screens/PolygonCreatorScreen';
 import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GroupScreen from './src/screens/GroupScreen';
+import CreateGroupScreen from './src/screens/CreateGroupScreen';
+import AreaCreator from './src/screens/AreaCreatorScreen';
 
 interface IntroSlide {
   title: string;
@@ -130,9 +131,22 @@ export default class App extends React.Component<
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen
+              name="CreateGroup"
+              options={{
+                title: 'Create group',
+              }}
+              component={CreateGroupScreen}
+            />
             <Stack.Screen name="Map" component={MapScreen} />
             <Stack.Screen name="Group" component={GroupScreen} />
-            <Stack.Screen name="PolygonCreator" component={PolygonCreator} />
+            <Stack.Screen
+              name="AreaCreator"
+              options={{
+                title: 'Select area',
+              }}
+              component={AreaCreator}
+            />
             <Stack.Screen name="QRScan" component={QrCodeScannerScreen} />
             <Stack.Screen name="QRCreate" component={QrCodeCreatorScreen} />
           </Stack.Navigator>

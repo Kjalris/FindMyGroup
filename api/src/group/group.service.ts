@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { LatLong } from 'src/common/dto/latlong.dto';
-import { Repository } from 'typeorm';
+import { Member, MemberRoleEnum } from 'src/member/entities/member.entity';
+import { Connection, Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/group.dto';
 import { Group } from './entities/group.entity';
 import { GroupWithLatLong } from './interfaces/group-with-latlong.interface';
@@ -11,28 +12,58 @@ export class GroupService {
   constructor(
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
+    @InjectConnection()
+    private readonly connection: Connection,
   ) {}
 
-  create(group: CreateGroupDto): Promise<GroupWithLatLong> {
-    const area = group.area
+  async create(input: CreateGroupDto): Promise<{
+    group: GroupWithLatLong;
+    member: Member;
+  }> {
+    const area = input.area
       .map((v) => `(${v.latitude},${v.longitude})`)
       .toString()
       .replace(/^/, '(')
       .replace(/$/, ')');
 
-    return this.groupRepository
-      .save({
-        name: group.name,
-        password: group.password,
-        area,
-      })
-      .then((result) => {
+    // Create transaction
+
+    const { group, member } = await this.connection
+      .createEntityManager()
+      .transaction(async (entityManager) => {
+        const group = entityManager.create(Group, {
+          name: input.name,
+          area,
+          password: input.password,
+        });
+
+        // Insert new group
+        await entityManager.insert(Group, group);
+
+        // Insert group member
+
+        const member = entityManager.create(Member, {
+          nickname: input.nickname,
+          password: input.nickname,
+          groupId: group.id,
+          role: MemberRoleEnum.OWNER,
+        });
+        await entityManager.insert(Member, member);
+
         return {
-          id: result.id,
-          name: result.name,
-          area: this.convertPolygonToLatLongArr(result.area),
+          group,
+          member,
         };
       });
+
+    return {
+      group: {
+        id: group.id,
+        name: group.name,
+        area: this.convertPolygonToLatLongArr(group.area),
+      },
+      member,
+    };
   }
 
   async get(id: string): Promise<GroupWithLatLong> {

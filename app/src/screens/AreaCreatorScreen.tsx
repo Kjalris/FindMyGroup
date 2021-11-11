@@ -21,6 +21,9 @@ import * as geolib from 'geolib';
 import Toast from 'react-native-toast-message';
 import { createError, createWarning } from '../helpers/toast';
 import intersects from '../helpers/intersects';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,13 +38,20 @@ interface Editing {
   selectedCoordinate: null | number;
 }
 
-export default class PolygonCreator extends React.Component<
-  unknown,
+export default class AreaCreator extends React.Component<
+  NativeStackScreenProps<
+    {
+      AreaCreator: {
+        name: string;
+        nickname: string;
+      };
+      Group: any;
+    },
+    'AreaCreator'
+  >,
   {
     region: Region;
     editing: false | Editing;
-    triangles: LatLng[][] | null;
-    polygon: LatLng[] | null;
   }
 > {
   private areaCornerRadiusPerLongitudeDelta = 3000;
@@ -58,8 +68,6 @@ export default class PolygonCreator extends React.Component<
         longitudeDelta: LONGITUDE_DELTA,
       },
       editing: false,
-      triangles: null,
-      polygon: null,
     };
   }
 
@@ -131,24 +139,49 @@ export default class PolygonCreator extends React.Component<
       return;
     }
 
-    // We want to store triangles as LatLng[], so first convert it to coordinates
-    const trianglesWithCoordinates = triangles.map((index) => {
-      return polygon[index];
-    });
+    // Send request to API to create group
 
-    // Chunk coordinates into arrays of length 3
-    const trianglesChunked: LatLng[][] = [];
-    for (let i = 0, j = trianglesWithCoordinates.length; i < j; i += 3) {
-      const triangle = trianglesWithCoordinates.slice(i, i + 3);
-      trianglesChunked.push(triangle);
+    axios({
+      url: 'http://192.168.1.15:3000/groups',
+      method: 'POST',
+      data: {
+        name: this.props.route.params.name,
+        nickname: this.props.route.params.nickname,
+        password: '12345678',
+        area: this.state.editing.polygon,
+      },
+      responseType: 'json',
+    })
+      .then((response) => {
+        return this.saveGroup(response.data);
+      })
+      .then(() => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+        this.props.navigation.popToTop();
+        this.props.navigation.navigate('Group');
+      })
+      .catch((err) => {
+        console.log(err?.response?.data);
+        createWarning(
+          'Create group',
+          'Failed to create group (' + err.message + ')',
+        );
+        return;
+      });
+  }
+
+  private async saveGroup(data: any): Promise<void> {
+    const result = await AsyncStorage.getItem('groups');
+
+    let groups = [];
+    if (result !== null) {
+      groups = JSON.parse(result) as any[];
     }
 
-    this.setState({
-      editing: false,
-      triangles: trianglesChunked,
-    });
+    groups.push(data);
 
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    await AsyncStorage.setItem('groups', JSON.stringify(groups));
   }
 
   private onMarkerMoved(e: MapEvent, original: LatLng) {
@@ -367,17 +400,6 @@ export default class PolygonCreator extends React.Component<
               strokeWidth={1}
             />
           )}
-
-          {this.state.triangles &&
-            this.state.triangles.map((v: any, i: number) => (
-              <Polygon
-                key={i}
-                coordinates={v}
-                strokeColor="#F00"
-                fillColor="rgba(255,0,0,0.5)"
-                strokeWidth={1}
-              />
-            ))}
         </MapView>
 
         <View style={styles.buttonContainer}>
@@ -390,13 +412,12 @@ export default class PolygonCreator extends React.Component<
             </TouchableOpacity>
           )}
 
-          {(this.state.editing !== false || this.state.triangles !== null) && (
+          {this.state.editing !== false && (
             <TouchableOpacity
               onPress={() => {
                 Toast.hide();
                 this.setState({
                   editing: false,
-                  triangles: null,
                 });
               }}
               style={[styles.bubble, styles.button]}
@@ -405,7 +426,7 @@ export default class PolygonCreator extends React.Component<
             </TouchableOpacity>
           )}
 
-          {this.state.editing === false && this.state.triangles === null && (
+          {this.state.editing === false && (
             <TouchableOpacity
               onPress={() => {
                 this.setState({
@@ -430,7 +451,6 @@ export default class PolygonCreator extends React.Component<
                     ],
                     selectedCoordinate: null,
                   },
-                  triangles: null,
                 });
               }}
               style={[styles.bubble, styles.button]}

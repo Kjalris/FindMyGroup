@@ -12,6 +12,12 @@ export default class HomeScreen extends React.Component<{
     return (
       <View>
         <Button
+          title="Create group"
+          onPress={() => {
+            this.props.navigation.navigate('CreateGroup');
+          }}
+        />
+        <Button
           title="Go to Map"
           onPress={() => {
             this.props.navigation.navigate('Map');
@@ -21,12 +27,6 @@ export default class HomeScreen extends React.Component<{
           title="Go to groups"
           onPress={() => {
             this.props.navigation.navigate('Group');
-          }}
-        />
-        <Button
-          title="Go to Polygon editor"
-          onPress={() => {
-            this.props.navigation.navigate('PolygonCreator');
           }}
         />
         <Button
