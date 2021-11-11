@@ -18,9 +18,11 @@ import QrCodeScannerScreen from './src/screens/QRCodeScannerScreen';
 import QrCodeCreatorScreen from './src/screens/QRCodeGeneratorScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import GroupScreen from './src/screens/GroupScreen';
+import GroupsScreen from './src/screens/GroupsScreen';
 import CreateGroupScreen from './src/screens/CreateGroupScreen';
 import AreaCreator from './src/screens/AreaCreatorScreen';
+import GroupScreen from './src/screens/GroupScreen';
+import { Group } from './src/interfaces/group.interface';
 
 interface IntroSlide {
   title: string;
@@ -46,7 +48,18 @@ const data: IntroSlide[] = [
   },
 ];
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<{
+  Group: {
+    group: Group;
+  };
+  Home: any;
+  CreateGroup: any;
+  Map: any;
+  Groups: any;
+  AreaCreator: any;
+  QRScan: any;
+  QRCreate: any;
+}>();
 
 export default class App extends React.Component<
   unknown,
@@ -139,7 +152,12 @@ export default class App extends React.Component<
               component={CreateGroupScreen}
             />
             <Stack.Screen name="Map" component={MapScreen} />
-            <Stack.Screen name="Group" component={GroupScreen} />
+            <Stack.Screen name="Groups" component={GroupsScreen} />
+            <Stack.Screen
+              name="Group"
+              options={({ route }) => ({ title: route.params.group.name })}
+              component={GroupScreen}
+            />
             <Stack.Screen
               name="AreaCreator"
               options={{

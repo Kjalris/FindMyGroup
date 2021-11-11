@@ -24,6 +24,7 @@ import intersects from '../helpers/intersects';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GroupAndMember } from '../interfaces/group-and-member.interface';
 
 const { width, height } = Dimensions.get('window');
 
@@ -155,11 +156,13 @@ export default class AreaCreator extends React.Component<
       .then((response) => {
         return this.saveGroup(response.data);
       })
-      .then(() => {
+      .then(({ group }) => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         this.props.navigation.popToTop();
-        this.props.navigation.navigate('Group');
+        this.props.navigation.navigate('Group', {
+          id: group.id,
+        });
       })
       .catch((err) => {
         console.log(err?.response?.data);
@@ -171,7 +174,7 @@ export default class AreaCreator extends React.Component<
       });
   }
 
-  private async saveGroup(data: any): Promise<void> {
+  private async saveGroup(data: GroupAndMember): Promise<GroupAndMember> {
     const result = await AsyncStorage.getItem('groups');
 
     let groups = [];
@@ -182,6 +185,8 @@ export default class AreaCreator extends React.Component<
     groups.push(data);
 
     await AsyncStorage.setItem('groups', JSON.stringify(groups));
+
+    return data;
   }
 
   private onMarkerMoved(e: MapEvent, original: LatLng) {

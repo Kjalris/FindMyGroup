@@ -26,7 +26,7 @@ export default class HomeScreen extends React.Component<{
         <Button
           title="Go to groups"
           onPress={() => {
-            this.props.navigation.navigate('Group');
+            this.props.navigation.navigate('Groups');
           }}
         />
         <Button
