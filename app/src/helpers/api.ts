@@ -3,13 +3,45 @@ import { LatLng } from 'react-native-maps';
 import { url } from '../constants/api.constant';
 import { GroupAndMember } from '../interfaces/group-and-member.interface';
 import { Group } from '../interfaces/group.interface';
+import * as Location from 'expo-location';
 import {
   saveGroup as saveGroupToStorage,
   deleteGroupById as deleteGroupFromStorage,
   deleteGroupByMemberId as deleteGroupByMemberFromStorage,
 } from './storage';
+import { GroupLocation } from '../interfaces/location.interface';
 
-export async function getGroup(groupId: string): Promise<Group> {
+export function updateLocation(
+  groupId: string,
+  memberId: string,
+  location: Location.LocationObject,
+): Promise<void> {
+  return axios({
+    url: url + '/groups/' + groupId + '/members/' + memberId + '/location',
+    method: 'PUT',
+    data: {
+      point: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      },
+    },
+    responseType: 'json',
+  }).then(() => {
+    return;
+  });
+}
+
+export function getLocations(groupId: string): Promise<GroupLocation[]> {
+  return axios({
+    url: url + '/groups/' + groupId + '/locations',
+    method: 'GET',
+    responseType: 'json',
+  }).then((response) => {
+    return response.data;
+  });
+}
+
+export function getGroup(groupId: string): Promise<Group> {
   return axios({
     url: url + '/groups/' + groupId,
     method: 'GET',

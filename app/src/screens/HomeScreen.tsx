@@ -12,27 +12,27 @@ export default class HomeScreen extends React.Component<{
     return (
       <View>
         <Button
+          title="Map"
+          onPress={() => {
+            this.props.navigation.navigate('Map');
+          }}
+        />
+        <Button
           title="Create group"
           onPress={() => {
             this.props.navigation.navigate('CreateGroup');
           }}
         />
         <Button
-          title="Go to Map"
+          title="Join group"
           onPress={() => {
-            this.props.navigation.navigate('Map');
+            this.props.navigation.navigate('QRScan');
           }}
         />
         <Button
           title="Go to groups"
           onPress={() => {
             this.props.navigation.navigate('Groups');
-          }}
-        />
-        <Button
-          title="Go to scan QR"
-          onPress={() => {
-            this.props.navigation.navigate('QRScan');
           }}
         />
         <Button
