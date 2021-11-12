@@ -5,7 +5,8 @@ import { GroupAndMember } from '../interfaces/group-and-member.interface';
 import { Group } from '../interfaces/group.interface';
 import {
   saveGroup as saveGroupToStorage,
-  deleteGroup as deleteGroupFromStorage,
+  deleteGroupById as deleteGroupFromStorage,
+  deleteGroupByMemberId as deleteGroupByMemberFromStorage,
 } from './storage';
 
 export async function getGroup(groupId: string): Promise<Group> {
@@ -27,7 +28,7 @@ export function deleteGroupMember(
     method: 'DELETE',
     responseType: 'json',
   }).then(() => {
-    return deleteGroupFromStorage(memberId);
+    return deleteGroupByMemberFromStorage(memberId);
   });
 }
 
