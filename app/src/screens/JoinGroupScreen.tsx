@@ -6,6 +6,7 @@ import Toast from 'react-native-toast-message';
 import { joinGroup } from '../helpers/api';
 import { createWarning } from '../helpers/toast';
 import { Group } from '../interfaces/group.interface';
+import { Member } from '../interfaces/member.interface';
 
 export default class JoinGroupScreen extends React.Component<
   NativeStackScreenProps<
@@ -15,6 +16,7 @@ export default class JoinGroupScreen extends React.Component<
       };
       Group: {
         group: Group;
+        member: Member;
         isOwner: false;
       };
     },
@@ -53,10 +55,11 @@ export default class JoinGroupScreen extends React.Component<
             }
 
             joinGroup(this.props.route.params.group.id, this.state.nickname)
-              .then(({ group }) => {
+              .then(({ group, member }) => {
                 this.props.navigation.popToTop();
                 this.props.navigation.navigate('Group', {
                   group,
+                  member,
                   isOwner: false,
                 });
               })

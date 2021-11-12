@@ -17,13 +17,13 @@ function saveGroups(groups: GroupAndMember[]): Promise<void> {
   return AsyncStorage.setItem('groups', JSON.stringify(groups));
 }
 
-export async function deleteGroup(id: string): Promise<void> {
+export async function deleteGroup(memberId: string): Promise<void> {
   const groups = await getGroups();
 
   for (let i = groups.length - 1; i >= 0; i--) {
-    const { group } = groups[i];
+    const { member } = groups[i];
 
-    if (group.id === id) {
+    if (member.id === memberId) {
       groups.splice(i, 1);
     }
   }
@@ -31,10 +31,12 @@ export async function deleteGroup(id: string): Promise<void> {
   return saveGroups(groups);
 }
 
-export async function getGroup(id: string): Promise<GroupAndMember | null> {
+export async function getGroup(
+  memberId: string,
+): Promise<GroupAndMember | null> {
   const groups = await getGroups();
 
-  const group = groups.find((v) => v.group.id === id);
+  const group = groups.find((v) => v.member.id === memberId);
 
   if (group === undefined) {
     return null;

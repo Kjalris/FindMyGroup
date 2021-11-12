@@ -18,6 +18,19 @@ export async function getGroup(groupId: string): Promise<Group> {
   });
 }
 
+export function deleteGroupMember(
+  groupId: string,
+  memberId: string,
+): Promise<void> {
+  return axios({
+    url: url + '/groups/' + groupId + '/members/' + memberId,
+    method: 'DELETE',
+    responseType: 'json',
+  }).then(() => {
+    return deleteGroupFromStorage(memberId);
+  });
+}
+
 export async function joinGroup(
   groupId: string,
   nickname: string,

@@ -24,6 +24,7 @@ import intersects from '../helpers/intersects';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { createGroup } from '../helpers/api';
 import { Group } from '../interfaces/group.interface';
+import { Member } from '../interfaces/member.interface';
 
 const { width, height } = Dimensions.get('window');
 
@@ -47,6 +48,7 @@ export default class AreaCreator extends React.Component<
       };
       Group: {
         group: Group;
+        member: Member;
         isOwner: true;
       };
     },
@@ -150,12 +152,13 @@ export default class AreaCreator extends React.Component<
       '12345678',
       this.state.editing.polygon,
     )
-      .then(({ group }) => {
+      .then(({ group, member }) => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         this.props.navigation.popToTop();
         this.props.navigation.navigate('Group', {
           group,
+          member,
           isOwner: true,
         });
       })
