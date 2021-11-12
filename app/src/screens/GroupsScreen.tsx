@@ -11,6 +11,7 @@ export default class GroupsScreen extends React.Component<
     {
       Group: {
         group: Group;
+        isOwner: boolean;
       };
     },
     'Group'
@@ -28,7 +29,16 @@ export default class GroupsScreen extends React.Component<
   }
 
   componentDidMount() {
-    // Get groups from storage
+    this.props.navigation.addListener('state', () => {
+      if (this.props.navigation.isFocused()) {
+        AsyncStorage.getItem('groups').then((result) => {
+          if (result !== null) {
+            this.setState({ groups: JSON.parse(result) });
+          }
+        });
+      }
+    });
+
     AsyncStorage.getItem('groups').then((result) => {
       if (result !== null) {
         this.setState({ groups: JSON.parse(result) });
@@ -43,6 +53,7 @@ export default class GroupsScreen extends React.Component<
         onPress={() => {
           this.props.navigation.navigate('Group', {
             group: item.group,
+            isOwner: item.member.role === 0,
           });
         }}
       >

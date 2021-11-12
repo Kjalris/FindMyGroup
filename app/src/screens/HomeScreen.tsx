@@ -36,12 +36,6 @@ export default class HomeScreen extends React.Component<{
           }}
         />
         <Button
-          title="Go to create QR"
-          onPress={() => {
-            this.props.navigation.navigate('QRCreate');
-          }}
-        />
-        <Button
           title="Delete local data"
           onPress={() => {
             AsyncStorage.clear()

@@ -22,9 +22,8 @@ import Toast from 'react-native-toast-message';
 import { createError, createWarning } from '../helpers/toast';
 import intersects from '../helpers/intersects';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GroupAndMember } from '../interfaces/group-and-member.interface';
+import { createGroup } from '../helpers/api';
+import { Group } from '../interfaces/group.interface';
 
 const { width, height } = Dimensions.get('window');
 
@@ -46,7 +45,10 @@ export default class AreaCreator extends React.Component<
         name: string;
         nickname: string;
       };
-      Group: any;
+      Group: {
+        group: Group;
+        isOwner: true;
+      };
     },
     'AreaCreator'
   >,
@@ -142,51 +144,28 @@ export default class AreaCreator extends React.Component<
 
     // Send request to API to create group
 
-    axios({
-      url: 'http://192.168.1.15:3000/groups',
-      method: 'POST',
-      data: {
-        name: this.props.route.params.name,
-        nickname: this.props.route.params.nickname,
-        password: '12345678',
-        area: this.state.editing.polygon,
-      },
-      responseType: 'json',
-    })
-      .then((response) => {
-        return this.saveGroup(response.data);
-      })
+    createGroup(
+      this.props.route.params.name,
+      this.props.route.params.nickname,
+      '12345678',
+      this.state.editing.polygon,
+    )
       .then(({ group }) => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         this.props.navigation.popToTop();
         this.props.navigation.navigate('Group', {
-          id: group.id,
+          group,
+          isOwner: true,
         });
       })
       .catch((err) => {
-        console.log(err?.response?.data);
         createWarning(
           'Create group',
           'Failed to create group (' + err.message + ')',
         );
         return;
       });
-  }
-
-  private async saveGroup(data: GroupAndMember): Promise<GroupAndMember> {
-    const result = await AsyncStorage.getItem('groups');
-
-    let groups = [];
-    if (result !== null) {
-      groups = JSON.parse(result) as any[];
-    }
-
-    groups.push(data);
-
-    await AsyncStorage.setItem('groups', JSON.stringify(groups));
-
-    return data;
   }
 
   private onMarkerMoved(e: MapEvent, original: LatLng) {

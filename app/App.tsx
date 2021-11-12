@@ -155,7 +155,9 @@ export default class App extends React.Component<
             <Stack.Screen name="Groups" component={GroupsScreen} />
             <Stack.Screen
               name="Group"
-              options={({ route }) => ({ title: route.params.group.name })}
+              options={({ route }) => {
+                return { title: route.params.group.name };
+              }}
               component={GroupScreen}
             />
             <Stack.Screen
@@ -166,7 +168,11 @@ export default class App extends React.Component<
               component={AreaCreator}
             />
             <Stack.Screen name="QRScan" component={QrCodeScannerScreen} />
-            <Stack.Screen name="QRCreate" component={QrCodeCreatorScreen} />
+            <Stack.Screen
+              name="QRCreate"
+              options={{ title: 'QR code' }}
+              component={QrCodeCreatorScreen}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       );
