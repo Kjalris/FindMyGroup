@@ -71,7 +71,7 @@ export class GroupController {
   // Member
   //
   @Post(':groupId/members')
-  private createMember(
+  private async createMember(
     @Param('groupId', ParseUUIDPipe) groupId: string,
     @Body(
       new ValidationPipe({
@@ -80,7 +80,13 @@ export class GroupController {
     )
     body: CreateMemberDto,
   ): Promise<any> {
-    return this.memberService.createMember(groupId, body);
+    const group = await this.groupService.get(groupId);
+    const member = await this.memberService.createMember(groupId, body);
+
+    return {
+      group,
+      member,
+    };
   }
 
   @Get(':groupId/members')

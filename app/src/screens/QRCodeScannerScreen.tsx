@@ -2,9 +2,18 @@ import React from 'react';
 import { Button, StyleSheet, View, Text } from 'react-native';
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import BarcodeMask from 'react-native-barcode-mask';
+import { getGroup } from '../helpers/api';
+import { createWarning } from '../helpers/toast';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Group } from '../interfaces/group.interface';
 
 export default class QrCodeScannerScreen extends React.Component<
-  unknown,
+  NativeStackScreenProps<{
+    JoinGroup: {
+      group: Group;
+      isOwner: false;
+    };
+  }>,
   { scanned: boolean; hasPermission: boolean }
 > {
   constructor(props: any) {
@@ -26,11 +35,27 @@ export default class QrCodeScannerScreen extends React.Component<
 
   handleBarCodeScanned(result: BarCodeScannerResult) {
     if (!this.state?.scanned) {
-      const { type, data } = result;
-      alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+      const { data } = result;
       this.setState({
         scanned: true,
       });
+
+      // Join group
+
+      getGroup(data)
+        .then((group) => {
+          // Go to join group page
+          this.props.navigation.navigate('JoinGroup', {
+            group,
+            isOwner: false,
+          });
+        })
+        .catch((err) => {
+          createWarning(
+            'Join group',
+            'Failed to get group (' + err.message + ')',
+          );
+        });
     }
   }
 

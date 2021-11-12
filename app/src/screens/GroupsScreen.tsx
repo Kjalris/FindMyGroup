@@ -5,12 +5,14 @@ import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GroupAndMember } from '../interfaces/group-and-member.interface';
 import { Group } from '../interfaces/group.interface';
+import { Member } from '../interfaces/member.interface';
 
 export default class GroupsScreen extends React.Component<
   NativeStackScreenProps<
     {
       Group: {
         group: Group;
+        member: Member;
         isOwner: boolean;
       };
     },
@@ -53,6 +55,7 @@ export default class GroupsScreen extends React.Component<
         onPress={() => {
           this.props.navigation.navigate('Group', {
             group: item.group,
+            member: item.member,
             isOwner: item.member.role === 0,
           });
         }}
@@ -71,7 +74,7 @@ export default class GroupsScreen extends React.Component<
         </Text>
         <FlatList
           data={this.state.groups}
-          keyExtractor={(item) => item.group.id}
+          keyExtractor={(item) => item.member.id}
           renderItem={this.renderGroup.bind(this)}
         />
       </SafeAreaView>

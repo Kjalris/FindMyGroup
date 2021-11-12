@@ -23,6 +23,7 @@ import CreateGroupScreen from './src/screens/CreateGroupScreen';
 import AreaCreator from './src/screens/AreaCreatorScreen';
 import GroupScreen from './src/screens/GroupScreen';
 import { Group } from './src/interfaces/group.interface';
+import JoinGroupScreen from './src/screens/JoinGroupScreen';
 
 interface IntroSlide {
   title: string;
@@ -51,6 +52,10 @@ const data: IntroSlide[] = [
 const Stack = createNativeStackNavigator<{
   Group: {
     group: Group;
+  };
+  JoinGroup: {
+    group: Group;
+    isOwner: false;
   };
   Home: any;
   CreateGroup: any;
@@ -159,6 +164,13 @@ export default class App extends React.Component<
                 return { title: route.params.group.name };
               }}
               component={GroupScreen}
+            />
+            <Stack.Screen
+              name="JoinGroup"
+              options={({ route }) => {
+                return { title: route.params.group.name };
+              }}
+              component={JoinGroupScreen}
             />
             <Stack.Screen
               name="AreaCreator"

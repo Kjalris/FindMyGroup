@@ -2,10 +2,38 @@ import axios, { AxiosError } from 'axios';
 import { LatLng } from 'react-native-maps';
 import { url } from '../constants/api.constant';
 import { GroupAndMember } from '../interfaces/group-and-member.interface';
+import { Group } from '../interfaces/group.interface';
 import {
   saveGroup as saveGroupToStorage,
   deleteGroup as deleteGroupFromStorage,
 } from './storage';
+
+export async function getGroup(groupId: string): Promise<Group> {
+  return axios({
+    url: url + '/groups/' + groupId,
+    method: 'GET',
+    responseType: 'json',
+  }).then((response) => {
+    return response.data;
+  });
+}
+
+export async function joinGroup(
+  groupId: string,
+  nickname: string,
+): Promise<GroupAndMember> {
+  return axios({
+    url: url + '/groups/' + groupId + '/members',
+    method: 'POST',
+    data: {
+      nickname,
+      role: 1,
+    },
+    responseType: 'json',
+  }).then((response) => {
+    return saveGroupToStorage(response.data);
+  });
+}
 
 export function createGroup(
   name: string,
