@@ -1,10 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import axios from 'axios';
 import React from 'react';
 import { Alert, Button, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Group } from '../interfaces/group.interface';
-import { url } from '../constants/api.constant';
 import { deleteGroup, deleteGroupMember } from '../helpers/api';
 import Toast from 'react-native-toast-message';
 import { createWarning } from '../helpers/toast';
