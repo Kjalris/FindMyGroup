@@ -6,8 +6,10 @@ import {
   Dimensions,
   TouchableOpacity,
   FlatList,
+  Button,
+  Alert,
 } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
+import MapView, { LatLng, MAP_TYPES, Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ReactTimeAgo from 'react-time-ago';
@@ -17,19 +19,23 @@ import * as geolib from 'geolib';
 import { getLocations } from '../helpers/api';
 import { saveLocationToGroups } from '../helpers/location';
 import { GroupLocation } from '../interfaces/location.interface';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function PersonMarker(props: {
   name: string;
-  location: Location.LocationObject;
+  location: LatLng;
+  timestamp: number;
 }): any {
   function PersonMarkerWithTime({ children }: { children: string }) {
     return (
       <Marker
-        key="0"
+        key={props.name + ' ' + props.timestamp}
         coordinate={{
-          latitude: props.location.coords.latitude,
-          longitude: props.location.coords.longitude,
+          latitude: props.location.latitude,
+          longitude: props.location.longitude,
         }}
+        draggable={false}
+        focusable={true}
         title={props.name}
         description={children}
       />
@@ -38,7 +44,7 @@ function PersonMarker(props: {
 
   return (
     <ReactTimeAgo
-      date={new Date(props.location.timestamp)}
+      date={new Date(props.timestamp)}
       component={PersonMarkerWithTime}
       timeStyle={'round'}
     />
@@ -50,7 +56,7 @@ export default class MapScreen extends React.Component<
     navigation: NativeStackNavigationProp<any>;
   },
   {
-    selected: GroupAndMember;
+    selected: GroupAndMember | null;
     selectedLocation: GroupLocation;
     groups: GroupAndMember[];
     location: Location.LocationObject;
@@ -66,25 +72,29 @@ export default class MapScreen extends React.Component<
     this.state.geoWatch?.remove();
   }
 
+  private updateLocations() {
+    // Get locations for each group
+    const promises = this.state.groups.map((v) => getLocations(v.group.id));
+
+    Promise.all(promises).then((locations) => {
+      const mappedLocations: { [key: string]: GroupLocation[] } = {};
+
+      locations.forEach((v, i) => {
+        mappedLocations[this.state.groups[i].group.id] = v;
+
+        this.setState({
+          locations: mappedLocations,
+        });
+      });
+    });
+  }
+
   async componentDidMount() {
     AsyncStorage.getItem('groups').then((result) => {
       if (result !== null) {
         this.setState({ groups: JSON.parse(result) });
 
-        // Get locations for each group
-        const promises = this.state.groups.map((v) => getLocations(v.group.id));
-
-        Promise.all(promises).then((locations) => {
-          const mappedLocations: { [key: string]: GroupLocation[] } = {};
-
-          locations.forEach((v, i) => {
-            mappedLocations[this.state.groups[i].group.id] = v;
-
-            this.setState({
-              locations: mappedLocations,
-            });
-          });
-        });
+        this.updateLocations();
       } else {
         this.setState({
           groups: [],
@@ -138,15 +148,25 @@ export default class MapScreen extends React.Component<
       <TouchableOpacity
         style={styles.item}
         onPress={() => {
-          /* this.props.navigation.navigate('Group', {
-            group: item.group,
-            member: item.member,
-            isOwner: item.member.role === 0,
-          }); */
-
           this.setState({
             selectedLocation: item,
           });
+        }}
+        onLongPress={() => {
+          Alert.alert('Remove member', 'Are you sure?', [
+            {
+              text: 'Yes',
+              style: 'destructive',
+              onPress: () => {
+                // TODO: Implement this
+                throw new Error('Not implemented');
+              },
+            },
+            {
+              text: 'No',
+              style: 'cancel',
+            },
+          ]);
         }}
       >
         <Text>{item.nickname}</Text>
@@ -160,7 +180,7 @@ export default class MapScreen extends React.Component<
     }
 
     const selectedGroup = this.state.groups.find(
-      (v) => v.member.id === this.state.selected.member.id,
+      (v) => v.member.id === this.state.selected?.member.id,
     );
 
     if (!selectedGroup) {
@@ -208,10 +228,32 @@ export default class MapScreen extends React.Component<
       }
     }
 
+    const locations = this.state.selected
+      ? this.state.locations[this.state.selected.group.id]
+      : [];
+
     return (
       <View style={styles.container}>
-        <MapView region={region} mapType="satellite" style={styles.map}>
-          <PersonMarker name="You are here" location={this.state.location} />
+        <MapView
+          region={region}
+          style={styles.map}
+          showsUserLocation={true}
+          mapType={MAP_TYPES.STANDARD}
+        >
+          {locations.map((v) => {
+            return (
+              <PersonMarker
+                key={v.nickname + ' ' + v.timestamp}
+                name={v.nickname}
+                location={{
+                  latitude: v.point.latitude,
+                  longitude: v.point.longitude,
+                }}
+                timestamp={new Date(v.timestamp).getTime()}
+              />
+            );
+          })}
+
           {selectedGroup && (
             <Polygon
               key={0}
@@ -238,6 +280,25 @@ export default class MapScreen extends React.Component<
             renderItem={this.renderMemberLocation.bind(this)}
           />
         )}
+
+        <SafeAreaView>
+          {this.state.selected && (
+            <Button
+              title="Deselect group"
+              onPress={() => {
+                this.setState({
+                  selected: null,
+                });
+              }}
+            />
+          )}
+          <Button
+            title="Refresh locations"
+            onPress={() => {
+              this.updateLocations();
+            }}
+          />
+        </SafeAreaView>
       </View>
     );
   }
