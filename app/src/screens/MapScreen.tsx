@@ -85,6 +85,11 @@ export default class MapScreen extends React.Component<
             });
           });
         });
+      } else {
+        this.setState({
+          groups: [],
+          locations: {},
+        });
       }
     });
 
