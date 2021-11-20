@@ -359,12 +359,7 @@ export default class AreaCreator extends React.Component<
                 onDragStart={() => Haptics.selectionAsync()}
                 onDragEnd={(e) => this.onMarkerMoved(e, v)}
                 focusable={false}
-                onTouchStart={() => {
-                  // do nothing
-                }}
-                onTouchEnd={() => {
-                  // do nothing
-                }}
+                onPress={this.onPress.bind(this)}
               >
                 <View
                   style={{
